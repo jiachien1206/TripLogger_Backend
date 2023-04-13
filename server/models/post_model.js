@@ -1,5 +1,10 @@
 import Post from '../schemas/post_schema.js';
 
+const queryAllPosts = async () => {
+    const allPosts = await Post.find();
+    return allPosts;
+};
+
 const queryNewPosts = async (limit) => {
     try {
         const newPosts = await Post.find().sort({ 'dates.post_date': 'desc' }).limit(limit);
@@ -9,4 +14,4 @@ const queryNewPosts = async (limit) => {
     }
 };
 
-export default { queryNewPosts };
+export default { queryAllPosts, queryNewPosts };
