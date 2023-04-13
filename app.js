@@ -7,6 +7,10 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+import posts_route from './server/routes/post_route.js';
+
+app.use('/api', posts_route);
+
 // Error handling
 app.use(function (err, req, res, next) {
     console.log(err);
