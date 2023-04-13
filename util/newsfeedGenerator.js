@@ -138,5 +138,4 @@ const UpdateFeeds = async () => {
         console.log(error);
     }
 };
-UpdateFeeds();
 export { UpdateFeeds };
