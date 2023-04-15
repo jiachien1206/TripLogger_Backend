@@ -18,6 +18,7 @@
     },
     "homepage": "https://github.com/jiachien1206/TripLogger_B#readme",
     "dependencies": {
+        "amqplib": "^0.10.3",
         "bcrypt": "^5.1.0",
         "cors": "^2.8.5",
         "dotenv": "^16.0.3",

@@ -27,6 +27,9 @@ io.on('connection', (socket) => {
 import { Database } from './util/database.js';
 await Database.connect();
 
+import { Queue } from './util/queue.js';
+await Queue.connect();
+
 import posts_route from './server/routes/post_route.js';
 
 import profile_route from './server/routes/user_route.js';
