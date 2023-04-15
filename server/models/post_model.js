@@ -1,6 +1,6 @@
-import Post from '../schema/post_schema.js';
-import User from '../schema/user_schema.js';
-import Country from '../schema/country_schema.js';
+import Post from '../schemas/post_schema.js';
+import User from '../schemas/user_schema.js';
+// import Country from '../schemas/country_schema.js';
 import mongoose from 'mongoose';
 
 const queryAllPosts = async () => {
