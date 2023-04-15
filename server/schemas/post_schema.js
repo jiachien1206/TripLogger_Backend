@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const postSchema = new Schema({
     title: { type: String, required: [true, 'Please fill the title.'], maxLength: 100 },
     authorId: { type: mongoose.SchemaTypes.ObjectId, ref: 'User' },
-    mainImg: { type: String },
+    main_image: { type: String },
     location: {
         continent: {
             type: String,
