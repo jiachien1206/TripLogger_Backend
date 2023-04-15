@@ -4,8 +4,9 @@ const userSchema = new Schema({
     name: { type: String, required: [true, 'Please fill the user name.'], maxLength: 100 },
     email: { type: String, required: [true, 'Please fill email.'], lowercase: true },
     password: { type: String, required: [true, 'Please fill password.'] },
+    image: { type: String, default: '' },
     provider: { type: String, required: true, enum: ['native'] },
-    cat_score: {
+    tag_score: {
         遊記: { type: Number, default: 1 },
         交通: { type: Number, default: 1 },
         住宿: { type: Number, default: 1 },
@@ -24,7 +25,7 @@ const userSchema = new Schema({
         南美洲: { type: Number, default: 1 },
         南極洲: { type: Number, default: 1 },
     },
-    cat_pre: {
+    tag_pre: {
         省錢妙招: { type: Number, default: 1.3 },
         遊記: { type: Number, default: 1.2 },
         交通: { type: Number, default: 1.1 },
