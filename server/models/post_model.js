@@ -175,4 +175,7 @@ export default {
     checkPostUser,
     editPost,
     deletePost,
+    esCreatePost,
+    esEditPost,
+    esDeletePost,
 };
