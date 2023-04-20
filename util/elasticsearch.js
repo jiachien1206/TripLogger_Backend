@@ -1,4 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
-const client = new Client({ node: 'http://152.67.209.195:9205' });
+import dotenv from 'dotenv';
+dotenv.config();
+const client = new Client({ node: process.env.ES_HOST });
 
 export default client;
