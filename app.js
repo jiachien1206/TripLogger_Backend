@@ -46,7 +46,7 @@ app.use(function (err, req, res, next) {
     res.status(500).send('Internal Server Error');
 });
 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
     console.log(`This application is running on local host:${process.env.PORT}.`);
 });
 
