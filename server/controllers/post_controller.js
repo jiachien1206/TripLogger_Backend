@@ -60,7 +60,7 @@ const getPost = async (req, res) => {
 
 const readPost = async (req, res) => {
     const postId = req.params.id;
-    const { userId, location, tag } = req.body;
+    const { userId, location, type } = req.body;
     console.log(userId);
     const currentMin = new Date().getMinutes();
     if (
@@ -70,13 +70,13 @@ const readPost = async (req, res) => {
     ) {
         if (userId) {
             await Cache.hincrby(`user-scores-e-${userId}`, `${location}`, 1);
-            await Cache.hincrby(`user-scores-e-${userId}`, `${tag}`, 1);
+            await Cache.hincrby(`user-scores-e-${userId}`, `${type}`, 1);
         }
         await Cache.hincrby('post-reads-e', postId, 1);
     } else {
         if (userId) {
             await Cache.hincrby(`user-scores-o-${userId}`, `${location}`, 1);
-            await Cache.hincrby(`user-scores-o-${userId}`, `${tag}`, 1);
+            await Cache.hincrby(`user-scores-o-${userId}`, `${type}`, 1);
         }
         await Cache.hincrby('post-reads-o', postId, 1);
     }
@@ -86,7 +86,7 @@ const readPost = async (req, res) => {
 const likePost = async (req, res) => {
     const postId = req.params.id;
     const userId = req.user.id;
-    const { location, tag, like } = req.body;
+    const { location, type, like } = req.body;
     const currentMin = new Date().getMinutes();
     if (
         (0 <= currentMin && currentMin < 10) ||
@@ -100,14 +100,14 @@ const likePost = async (req, res) => {
 
             await Cache.hset(`user-like-e-${userId}`, { [postId]: 1 });
             await Cache.hincrby(`user-scores-e-${userId}`, `${location}`, 5);
-            await Cache.hincrby(`user-scores-e-${userId}`, `${tag}`, 5);
+            await Cache.hincrby(`user-scores-e-${userId}`, `${type}`, 5);
         } else {
             // 取消like
             await Cache.hincrby('post-like-num-e', postId, -1);
 
             await Cache.hset(`user-like-e-${userId}`, { [postId]: 0 });
             await Cache.hincrby(`user-scores-e-${userId}`, `${location}`, -5);
-            await Cache.hincrby(`user-scores-e-${userId}`, `${tag}`, -5);
+            await Cache.hincrby(`user-scores-e-${userId}`, `${type}`, -5);
         }
         // 奇數時間
     } else {
@@ -117,14 +117,14 @@ const likePost = async (req, res) => {
 
             await Cache.hset(`user-like-o-${userId}`, { [postId]: 1 });
             await Cache.hincrby(`user-scores-o-${userId}`, `${location}`, 5);
-            await Cache.hincrby(`user-scores-o-${userId}`, `${tag}`, 5);
+            await Cache.hincrby(`user-scores-o-${userId}`, `${type}`, 5);
         } else {
             // 取消like
             await Cache.hincrby('post-like-num-o', postId, -1);
 
             await Cache.hset(`user-like-o-${userId}`, { [postId]: 0 });
             await Cache.hincrby(`user-scores-o-${userId}`, `${location}`, -5);
-            await Cache.hincrby(`user-scores-o-${userId}`, `${tag}`, -5);
+            await Cache.hincrby(`user-scores-o-${userId}`, `${type}`, -5);
         }
     }
 
@@ -137,14 +137,14 @@ const likePost = async (req, res) => {
 const savePost = async (req, res) => {
     const postId = req.params.id;
     const userId = req.user.id;
-    const { location, tag, save } = req.body;
+    const { location, type, save } = req.body;
     if (save) {
         await Post.updateSaveNum(postId, 1);
-        await User.addUserScore(userId, location, tag, 10);
+        await User.addUserScore(userId, location, type, 10);
         await User.updateUserSaved(userId, postId, save);
     } else {
         await Post.updateSaveNum(postId, -1);
-        await User.addUserScore(userId, location, tag, -10);
+        await User.addUserScore(userId, location, type, -10);
         await User.updateUserSaved(userId, postId, save);
     }
     res.status(200).json({ message: `Saved post ${postId}` });

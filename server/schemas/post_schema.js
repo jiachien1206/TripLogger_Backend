@@ -13,13 +13,12 @@ const postSchema = new Schema({
         country: { type: String, default: null },
         city: { type: String, default: null },
     },
-    tags: [
-        {
-            type: String,
-            default: null,
-            enum: ['交通', '住宿', '景點', '證件', '其他', '恐怖故事', '省錢妙招'],
-        },
-    ],
+    type: {
+        type: String,
+        default: null,
+        enum: ['交通', '住宿', '景點', '證件', '其他', '恐怖故事', '省錢妙招'],
+    },
+
     content: { type: String, required: [true, 'Write some content.'] },
     dates: {
         post_date: { type: Date, default: Date.now, immutable: true },
