@@ -28,12 +28,19 @@ const consumePost = async () => {
                     console.log(`Post ${postId} created.`);
                     const country = post.content.location.country;
                     await Country.addPostToCountry(country, postId);
+                    const esPostId = await Post.esCreatePost(postId, post.content);
+                    console.log(`New post ${esPostId} saved to elasticsearch.`);
                 }
             } else if (post.action === 'edit') {
-                await Post.editPost(post.postId, post.content);
-                console.log(`Post ${post.postId} edited.`);
+                const postId = await Post.editPost(post.postId, post.content);
+                console.log(`Post ${postId} edited.`);
+                await Post.esEditPost(post.postId, post.content);
+                console.log(`Post edited from elasticsearch.`);
             } else if (post.action === 'delete') {
                 await Post.deletePost(post.userId, post.postId);
+                console.log(`Post ${post.postId} deleted.`);
+                await Post.esDeletePost(post.postId);
+                console.log(`Post ${post.postId} deleted from elasticsearch.`);
             }
 
             await UpdateFeeds();
