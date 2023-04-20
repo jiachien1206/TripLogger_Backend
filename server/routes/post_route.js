@@ -11,6 +11,7 @@ import {
     getPost,
     readPost,
     savePost,
+    getPostNumbers,
     getPostUserStatus,
     writePost,
     getPresignUrl,
@@ -27,6 +28,7 @@ router.route('/posts/:id').get(getPost);
 router.route('/posts/:id/reads').post(readPost);
 router.route('/posts/:id/like').post(authentication, wrapAsync(likePost));
 router.route('/posts/:id/save').post(authentication, wrapAsync(savePost));
+router.route('/posts/:id/num').get(wrapAsync(getPostNumbers));
 router.route('/posts-user-status').get(authentication, wrapAsync(getPostUserStatus));
 router.route('/post').post(authentication, wrapAsync(writePost));
 router.route('/post/presignUrl').get(wrapAsync(getPresignUrl));

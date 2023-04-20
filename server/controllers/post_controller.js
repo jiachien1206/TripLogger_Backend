@@ -135,6 +135,22 @@ const savePost = async (req, res) => {
     res.status(200).json({ message: `Saved post ${postId}` });
 };
 
+const getPostNumbers = async (req, res) => {
+    const postId = req.params.id;
+    const readNum = await Cache.hget('posts:read-num', postId);
+    const likeNum = await Cache.hget('posts:like-num', postId);
+    const saveNum = await Cache.hget('posts:save-num', postId);
+    const commentNum = await Cache.hget('posts:comment-num', postId);
+    res.status(200).json({
+        data: {
+            read_num: Number(readNum),
+            like_num: Number(likeNum),
+            save_num: Number(saveNum),
+            comment_num: Number(commentNum),
+        },
+    });
+};
+
 const getPostUserStatus = async (req, res) => {
     const userId = req.user.id;
     const savedPosts = await User.queryUserSavedPosts(userId);
@@ -193,6 +209,7 @@ export {
     readPost,
     likePost,
     savePost,
+    getPostNumbers,
     getPostUserStatus,
     writePost,
     getPresignUrl,
