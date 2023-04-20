@@ -28,13 +28,13 @@ const postSchema = new Schema({
     },
     comments: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Comment' }],
     new_read_num: { type: Number, default: 0 },
-    read_num: { type: Number, default: 0 },
+    read_num: { type: Number, default: 10 },
     new_like_num: { type: Number, default: 0 },
     like_num: { type: Number, default: 0 },
     new_save_num: { type: Number, default: 0 },
     save_num: { type: Number, default: 0 },
-    new_comments_num: { type: Number, default: 0 },
-    comments_num: { type: Number, default: 0 },
+    new_comment_num: { type: Number, default: 0 },
+    comment_num: { type: Number, default: 0 },
     score: { type: Number, default: 0 },
 });
 
