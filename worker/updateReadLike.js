@@ -27,34 +27,36 @@ if (
     even = true;
 }
 
-const updateRead = async (even) => {
-    let posts;
-    if (even) {
-        posts = await Cache.hgetall('post-reads-o');
-        Cache.del('post-reads-o');
-    } else {
-        posts = await Cache.hgetall('post-reads-e');
-        Cache.del('post-reads-e');
-    }
+const updatePostReadNum = async () => {
+    const posts = await Cache.hgetall('posts:read-num');
     for (const [key, value] of Object.entries(posts)) {
         await Post.updateReadNum(key, value);
     }
     console.log(`Posts read number updated.`);
 };
 
-const updatePostLikeNum = async (even) => {
-    let posts;
-    if (even) {
-        posts = await Cache.hgetall('post-like-num-o');
-        Cache.del('post-like-num-o');
-    } else {
-        posts = await Cache.hgetall('post-like-num-e');
-        Cache.del('post-like-num-e');
-    }
+const updatePostLikeNum = async () => {
+    const posts = await Cache.hgetall('posts:like-num');
     for (const [key, value] of Object.entries(posts)) {
         await Post.updateLikeNum(key, value);
     }
     console.log(`Posts like number updated.`);
+};
+
+const updatePostSaveNum = async () => {
+    const posts = await Cache.hgetall('posts:save_num');
+    for (const [key, value] of Object.entries(posts)) {
+        await Post.updateSaveNum(key, value);
+    }
+    console.log(`Posts save number updated.`);
+};
+
+const updatePostCommentNum = async () => {
+    const posts = await Cache.hgetall('posts:comment-num');
+    for (const [key, value] of Object.entries(posts)) {
+        await Post.updateCommentNum(key, value);
+    }
+    console.log(`Posts comment number updated.`);
 };
 
 const updateUserLike = async (even) => {
@@ -82,24 +84,28 @@ const updateUserScore = async (even) => {
     } else {
         users = await Cache.keys('user-scores-e-*');
     }
-    users.map(async (user) => {
-        const scores = await Cache.hgetall(user);
-        const userId = user.slice(14);
-        const locations = ['亞洲', '歐洲', '北美洲', '大洋洲', '南美洲', '非洲', '南極洲'];
-        for (const [key, value] of Object.entries(scores)) {
-            if (locations.includes(key)) {
-                await User.addUserScore(userId, 'location', key, value);
-            } else {
-                await User.addUserScore(userId, 'tag', key, value);
+    await Promise.all(
+        users.map(async (user) => {
+            const scores = await Cache.hgetall(user);
+            const userId = user.slice(14);
+            const locations = ['亞洲', '歐洲', '北美洲', '大洋洲', '南美洲', '非洲', '南極洲'];
+            for (const [key, value] of Object.entries(scores)) {
+                if (locations.includes(key)) {
+                    await User.addUserScore(userId, 'location', key, value);
+                } else {
+                    await User.addUserScore(userId, 'type', key, value);
+                }
             }
-        }
-        Cache.del(user);
-    });
+            Cache.del(user);
+        })
+    );
     console.log(`Users read and like score updated.`);
 };
 
-await updateRead(even);
-await updatePostLikeNum(even);
+await updatePostReadNum();
+await updatePostLikeNum();
+await updatePostSaveNum();
+await updatePostCommentNum();
 await updateUserLike(even);
 await updateUserScore(even);
 await UpdateFeeds();
