@@ -7,7 +7,7 @@ const Queue = {
     connect: async () => {
         try {
             const conn = await amqp.connect(
-                `amqp://${process.env.QUEUE_USERNAME}:${process.env.QUEUE_PASSWORD}@localhost:5672`
+                `amqp://${process.env.QUEUE_USERNAME}:${process.env.QUEUE_PASSWORD}@localhost:${process.env.QUEUE_PORT}`
             );
             channel = await conn.createChannel();
             await channel.assertQueue('post-queue');

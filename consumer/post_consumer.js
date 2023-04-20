@@ -7,7 +7,7 @@ import Country from '../server/models/country_model.js';
 import { UpdateFeeds } from '../util/newsfeedGenerator.js';
 import io from 'socket.io-client';
 
-const socket = io.connect('http://localhost:8080/', {
+const socket = io.connect(process.env.SERVER, {
     reconnection: true,
 });
 socket.on('connect', function () {
