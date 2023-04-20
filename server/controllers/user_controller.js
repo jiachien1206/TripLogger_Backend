@@ -81,7 +81,7 @@ const generateUserNewsfeed = async (req, res) => {
         (acc, score) => acc + score,
         0
     );
-    const catScoreSum = Object.values(user.tag_score).reduce((acc, score) => acc + score, 0);
+    const catScoreSum = Object.values(user.type_score).reduce((acc, score) => acc + score, 0);
 
     // 把每個類別的分數除以加總獲得比例*user自己預設的喜好排序
     let locationScore = {};
@@ -90,8 +90,8 @@ const generateUserNewsfeed = async (req, res) => {
         locationScore[key] = score;
     }
     let catScore = {};
-    for (const [key, value] of Object.entries(user.tag_score)) {
-        const score = user.tag_pre[key] * (value / catScoreSum);
+    for (const [key, value] of Object.entries(user.type_score)) {
+        const score = user.type_pre[key] * (value / catScoreSum);
         catScore[key] = score;
     }
 
@@ -103,7 +103,7 @@ const generateUserNewsfeed = async (req, res) => {
             newsFeed.push({ post: posts[i] });
         } else {
             const location = JSON.parse(newsFeed[Math.floor(i / 2)].post).location.continent;
-            const cat = JSON.parse(newsFeed[Math.floor(i / 2)].post).tags[0];
+            const cat = JSON.parse(newsFeed[Math.floor(i / 2)].post).type;
             // TOP文章分數*user對該location分數*user對該category分數
             newsFeed[Math.floor(i / 2)].score =
                 Number(posts[i]) * locationScore[location] * catScore[cat];

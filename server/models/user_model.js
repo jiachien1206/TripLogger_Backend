@@ -59,7 +59,7 @@ const addUserScore = async (userId, cat, key, score) => {
         if (cat === 'location') {
             update[`location_score.${key}`] = score;
         } else {
-            update[`tag_score.${key}`] = score;
+            update[`type_score.${key}`] = score;
         }
         await User.updateOne({ _id: userId }, { $inc: update });
         return true;

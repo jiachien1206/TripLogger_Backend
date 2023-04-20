@@ -6,8 +6,7 @@ const userSchema = new Schema({
     password: { type: String, required: [true, 'Please fill password.'] },
     image: { type: String, default: '' },
     provider: { type: String, required: true, enum: ['native'] },
-    tag_score: {
-        遊記: { type: Number, default: 1 },
+    type_score: {
         交通: { type: Number, default: 1 },
         住宿: { type: Number, default: 1 },
         景點: { type: Number, default: 1 },
@@ -25,15 +24,14 @@ const userSchema = new Schema({
         南美洲: { type: Number, default: 1 },
         南極洲: { type: Number, default: 1 },
     },
-    tag_pre: {
-        省錢妙招: { type: Number, default: 1.3 },
-        遊記: { type: Number, default: 1.2 },
-        交通: { type: Number, default: 1.1 },
-        住宿: { type: Number, default: 1 },
-        景點: { type: Number, default: 0.9 },
+    type_pre: {
+        省錢妙招: { type: Number, default: 1.6 },
+        交通: { type: Number, default: 1.4 },
+        住宿: { type: Number, default: 1.2 },
+        景點: { type: Number, default: 1 },
         證件: { type: Number, default: 0.8 },
-        恐怖故事: { type: Number, default: 0.7 },
-        其他: { type: Number, default: 0.6 },
+        恐怖故事: { type: Number, default: 0.6 },
+        其他: { type: Number, default: 0.4 },
     },
     location_pre: {
         亞洲: { type: Number, default: 1.6 },

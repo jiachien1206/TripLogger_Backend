@@ -103,7 +103,7 @@ const setUserNewsfeed = async () => {
                 } else {
                     const location = JSON.parse(newsFeed[Math.floor(i / 2)].post).location
                         .continent;
-                    const cat = JSON.parse(newsFeed[Math.floor(i / 2)].post).tags[0];
+                    const cat = JSON.parse(newsFeed[Math.floor(i / 2)].post).type;
                     // TOP文章分數*user對該location分數*user對該category分數
                     newsFeed[Math.floor(i / 2)].score =
                         Number(posts[i]) * locationScore[location] * catScore[cat];
