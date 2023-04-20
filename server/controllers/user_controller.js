@@ -4,12 +4,10 @@ import User from '../models/user_model.js';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import emitNewsfeedsUpdate from '../../util/emitNewsfeedUpdate.js';
-import { getSocketServer } from '../../app.js';
 import Cache from '../../util/cache.js';
 
 const signup = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, location_pre, type_pre } = req.body;
     if (!name || !email || !password || name.length < 3) {
         return res.status(400).json({ error: 'Name, email and password are required.' });
     }
@@ -22,7 +20,15 @@ const signup = async (req, res) => {
         return res.status(400).json({ error: 'User already exists.' });
     }
     const hash = await bcrypt.hash(password, 10);
-    const user = await User.signup(name, email, hash, 'native');
+    let locationPre = {};
+    for (let i = 0; i < 7; i++) {
+        locationPre[location_pre[i]] = Number((1.6 - i * 0.2).toFixed(1));
+    }
+    let typePre = {};
+    for (let i = 0; i < 7; i++) {
+        typePre[type_pre[i]] = Number((1.6 - i * 0.2).toFixed(1));
+    }
+    const user = await User.signup(name, email, hash, locationPre, typePre, 'native');
     const accessToken = jwt.sign(
         {
             provider: user.provider,
@@ -32,7 +38,7 @@ const signup = async (req, res) => {
         },
         process.env.TOKEN_SECRET
     );
-
+    console.log(`New user ${user._id} signed up`);
     res.status(200).json({ data: { user, accessToken } });
 };
 
@@ -68,10 +74,41 @@ const signin = async (req, res) => {
     return res.status(200).json({ data: { user, accessToken } });
 };
 
-const newsfeedUpdateNotify = async (req, res) => {
-    const io = getSocketServer();
-    emitNewsfeedsUpdate(io);
-    res.send('Emitted notification');
+const getUserData = async (req, res) => {
+    const userId = req.user.id;
+    const user = await User.queryUser(userId);
+    const { name, email, location_pre, type_pre, image } = user;
+    let location = Object.entries(location_pre).sort((a, b) => b[1] - a[1]);
+    location = location.map((l) => {
+        return l[0];
+    });
+    let type = Object.entries(type_pre).sort((a, b) => b[1] - a[1]);
+    type = type.map((t) => {
+        return t[0];
+    });
+    const userData = {
+        name,
+        email,
+        location,
+        type,
+        image,
+    };
+    return res.status(200).json({ data: userData });
+};
+
+const editUserSetting = async (req, res) => {
+    const userId = req.user.id;
+    const { name, email, image, location_pre, type_pre } = req.body;
+    let locationPre = {};
+    for (let i = 0; i < location_pre.length; i++) {
+        locationPre[location_pre[i]] = Number((1.6 - i * 0.2).toFixed(1));
+    }
+    let typePre = {};
+    for (let i = 0; i < type_pre.length; i++) {
+        typePre[type_pre[i]] = Number((1.6 - i * 0.2).toFixed(1));
+    }
+    await User.updateUserSetting(userId, name, email, image, locationPre, typePre);
+    return res.status(200).json({ message: `User ${userId} setting updated.` });
 };
 
 const generateUserNewsfeed = async (req, res) => {
@@ -113,7 +150,7 @@ const generateUserNewsfeed = async (req, res) => {
     // 丟進Redis sorted set
     await Cache.del(userId);
     await Cache.zadd(
-        userId,
+        `user:${userId}`,
         ...newsFeed.map(({ post, score }) => [Math.round(score * 1000000) / 1000, post])
     );
     await Cache.expire(userId, 86400);
@@ -138,4 +175,12 @@ const getUserVisited = async (req, res) => {
     res.status(200).json({ data: visitedISO3 });
 };
 
-export { signup, signin, newsfeedUpdateNotify, generateUserNewsfeed, getUserPosts, getUserVisited };
+export {
+    signup,
+    signin,
+    getUserData,
+    editUserSetting,
+    generateUserNewsfeed,
+    getUserPosts,
+    getUserVisited,
+};

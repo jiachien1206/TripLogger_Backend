@@ -5,14 +5,13 @@ const userExist = async (email) => {
     return isUser;
 };
 
-const signup = async (name, email, password, provider) => {
-    const user = await User.create({ name, email, password, provider });
+const signup = async (name, email, password, location_pre, type_pre, provider) => {
+    const user = await User.create({ name, email, password, location_pre, type_pre, provider });
     return user;
 };
 
 const getUser = async (email) => {
     const [user] = await User.find({ email: email });
-    console.log(user);
     return user;
 };
 
@@ -27,74 +26,47 @@ const queryAllUsers = async () => {
 };
 
 const queryUserPosts = async (userId) => {
-    try {
-        const [user] = await User.find({ _id: userId }).populate({
-            path: 'posts',
-            select: ['title'],
-        });
-        return user.posts;
-    } catch (error) {
-        console.log(error);
-        return { error };
-    }
+    const [user] = await User.find({ _id: userId }).populate({
+        path: 'posts',
+        select: ['title'],
+    });
+    return user.posts;
 };
 
 const queryUserVisited = async (userId) => {
-    try {
-        const [user] = await User.find({ _id: userId }).populate({
-            path: 'visited',
-            select: ['iso3'],
-        });
-        return user.visited;
-    } catch (error) {
-        console.log(error);
-        return { error };
-    }
+    const [user] = await User.find({ _id: userId }).populate({
+        path: 'visited',
+        select: ['iso3'],
+    });
+    return user.visited;
 };
 
 const addUserScore = async (userId, cat, key, score) => {
-    try {
-        const update = {};
+    const update = {};
 
-        if (cat === 'location') {
-            update[`location_score.${key}`] = score;
-        } else {
-            update[`type_score.${key}`] = score;
-        }
-        await User.updateOne({ _id: userId }, { $inc: update });
-        return true;
-    } catch (error) {
-        console.log(error);
-        return false;
+    if (cat === 'location') {
+        update[`location_score.${key}`] = score;
+    } else {
+        update[`type_score.${key}`] = score;
     }
+    await User.updateOne({ _id: userId }, { $inc: update });
 };
 
 const updateUserSaved = async (userId, postId, save) => {
-    try {
-        if (save) {
-            await User.updateOne({ _id: userId }, { $addToSet: { saved_posts: postId } });
-        } else {
-            await User.updateOne({ _id: userId }, { $pull: { saved_posts: postId } });
-        }
-        return true;
-    } catch (error) {
-        console.log(error);
-        return false;
+    if (save) {
+        await User.updateOne({ _id: userId }, { $addToSet: { saved_posts: postId } });
+    } else {
+        await User.updateOne({ _id: userId }, { $pull: { saved_posts: postId } });
     }
 };
 
 const updateUserLiked = async (userId, postId, like) => {
-    try {
-        if (like) {
-            await User.updateOne({ _id: userId }, { $addToSet: { liked_posts: postId } });
-        } else {
-            await User.updateOne({ _id: userId }, { $pull: { liked_posts: postId } });
-        }
-        return true;
-    } catch (error) {
-        console.log(error);
-        return false;
+    if (like) {
+        await User.updateOne({ _id: userId }, { $addToSet: { liked_posts: postId } });
+    } else {
+        await User.updateOne({ _id: userId }, { $pull: { liked_posts: postId } });
     }
+    return true;
 };
 
 const queryUserSavedPosts = async (userId) => {
@@ -125,6 +97,13 @@ const queryUserLikedPosts = async (userId) => {
     }
 };
 
+const updateUserSetting = async (userId, name, email, image, location, type) => {
+    await User.updateOne(
+        { _id: userId },
+        { name, email, image, location_pre: location, type_pre: type }
+    );
+};
+
 export default {
     signup,
     getUser,
@@ -138,4 +117,5 @@ export default {
     updateUserLiked,
     queryUserSavedPosts,
     queryUserLikedPosts,
+    updateUserSetting,
 };
