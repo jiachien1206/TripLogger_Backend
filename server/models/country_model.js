@@ -1,4 +1,4 @@
-import Country from '../schema/country_schema.js';
+import Country from '../schemas/country_schema.js';
 
 const queryMapPosts = async () => {
     try {

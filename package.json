@@ -20,9 +20,11 @@
     "dependencies": {
         "@aws-sdk/client-s3": "^3.312.0",
         "@aws-sdk/s3-request-presigner": "^3.312.0",
+        "@elastic/elasticsearch": "^8.7.0",
         "amqplib": "^0.10.3",
         "bcrypt": "^5.1.0",
         "cors": "^2.8.5",
+        "csv-parse": "^5.3.6",
         "dotenv": "^16.0.3",
         "express": "^4.18.2",
         "fs": "^0.0.1-security",
