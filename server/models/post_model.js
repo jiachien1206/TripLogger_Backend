@@ -1,7 +1,11 @@
-import Post from '../schemas/post_schema.js';
-import User from '../schemas/user_schema.js';
-// import Country from '../schemas/country_schema.js';
+import dotenv from 'dotenv';
+dotenv.config();
+import Post from '../schema/post_schema.js';
+import User from '../schema/user_schema.js';
+import Country from '../schema/country_schema.js';
 import mongoose from 'mongoose';
+import Es from '../../util/elasticsearch.js';
+const { ES_INDEX } = env.process;
 
 const queryAllPosts = async () => {
     const allPosts = await Post.find();
@@ -90,6 +94,18 @@ const createPost = async (userId, content) => {
     }
 };
 
+const esCreatePost = async (postId, post) => {
+    const esPost = await Es.index({
+        index: ES_INDEX,
+        body: {
+            id: postId,
+            title: post.title,
+            content: post.content,
+        },
+    });
+    return esPost._id;
+};
+
 const checkPostUser = async (postId, userId) => {
     const isExist = await Post.find({ _id: postId, authorId: userId });
     if (isExist.length !== 0) {
@@ -112,9 +128,38 @@ const editPost = async (postId, post) => {
     );
 };
 
+const esEditPost = async (postId, post) => {
+    await Es.updateByQuery({
+        index: ES_INDEX,
+        refresh: true,
+        body: {
+            query: {
+                match: {
+                    id: postId,
+                },
+            },
+            script: {
+                inline: `ctx._source.title = '${post.title}'; ctx._source.content= '${post.content}';`,
+                lang: 'painless',
+            },
+        },
+    });
+};
+
 const deletePost = async (userId, postId) => {
     await Post.deleteOne({ _id: postId });
     await User.updateOne({ _id: userId }, { $pull: { posts: postId } });
+};
+
+const esDeletePost = async (postId) => {
+    await Es.deleteByQuery({
+        index: ES_INDEX,
+        body: {
+            query: {
+                match: { id: postId },
+            },
+        },
+    });
 };
 
 export default {
