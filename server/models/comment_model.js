@@ -1,4 +1,4 @@
-import Comment from '../schema/comment_schema.js';
+import Comment from '../schemas/comment_schema.js';
 
 const addComment = async (comment) => {
     const result = await Comment.create(comment);

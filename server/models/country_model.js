@@ -1,4 +1,4 @@
-import Country from '../schema/country_schema.js';
+import Country from '../schemas/country_schema.js';
 
 const queryMapPosts = async () => {
     const contries = await Country.find().populate({ path: 'posts', select: ['title'] });
