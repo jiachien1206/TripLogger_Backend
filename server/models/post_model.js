@@ -3,7 +3,6 @@ dotenv.config();
 import Post from '../schemas/post_schema.js';
 import User from '../schemas/user_schema.js';
 import Country from '../schemas/country_schema.js';
-import mongoose from 'mongoose';
 import Es from '../../util/elasticsearch.js';
 const { ES_INDEX } = process.env;
 
@@ -13,12 +12,8 @@ const queryAllPosts = async () => {
 };
 
 const queryNewPosts = async (limit) => {
-    try {
-        const newPosts = await Post.find().sort({ 'dates.post_date': 'desc' }).limit(limit);
-        return newPosts;
-    } catch (err) {
-        console.log(err);
-    }
+    const newPosts = await Post.find().sort({ 'dates.post_date': 'desc' }).limit(limit);
+    return newPosts;
 };
 
 const queryPostWithComments = async (postId) => {
@@ -41,7 +36,7 @@ const queryContinentPosts = async (continent) => {
 
 const updateReadNum = async (postId, readNum) => {
     try {
-        await Post.updateOne({ _id: postId }, { $inc: { new_read_num: readNum } });
+        await Post.updateOne({ _id: postId }, { new_read_num: readNum });
         return postId;
     } catch (error) {
         console.log(error);
@@ -50,53 +45,34 @@ const updateReadNum = async (postId, readNum) => {
 };
 
 const updateLikeNum = async (postId, likeNum) => {
-    try {
-        await Post.updateOne({ _id: postId }, { $inc: { new_like_num: likeNum } });
-        return postId;
-    } catch (error) {
-        console.log(error);
-        return { error };
-    }
+    await Post.updateOne({ _id: postId }, { new_like_num: likeNum });
 };
 
 const updateSaveNum = async (postId, saveNum) => {
-    try {
-        await Post.updateOne({ _id: postId }, { $inc: { new_save_num: saveNum } });
-        return postId;
-    } catch (error) {
-        console.log(error);
-        return false;
-    }
+    await Post.updateOne({ _id: postId }, { new_save_num: saveNum });
+};
+
+const updateCommentNum = async (postId, commentNum) => {
+    await Post.updateOne({ _id: postId }, { new_comment_num: commentNum });
 };
 
 const addCommentToPost = async (postId, commentId) => {
-    try {
-        await Post.updateOne({ _id: postId }, { $push: { comments: commentId } });
-        return true;
-    } catch (error) {
-        console.log(error);
-        return false;
-    }
+    await Post.updateOne({ _id: postId }, { $push: { comments: commentId } });
 };
 
 const createPost = async (userId, content) => {
-    try {
-        const post = await Post.create(content);
-        const country = content.location.country;
-        const postId = post._id.valueOf();
-        let countryId = await Country.findOne({ 'name.cn': country }).select('_id');
-        countryId = countryId._id.valueOf();
-        await User.updateOne({ _id: userId }, { $addToSet: { posts: postId, visited: countryId } });
-        return postId;
-    } catch (err) {
-        console.log(err);
-        return false;
-    }
+    const post = await Post.create(content);
+    const country = content.location.country;
+    const postId = post._id.valueOf();
+    let countryId = await Country.findOne({ 'name.cn': country }).select('_id');
+    countryId = countryId._id.valueOf();
+    await User.updateOne({ _id: userId }, { $push: { posts: postId, visited: countryId } });
+    return postId;
 };
 
 const esCreatePost = async (postId, post) => {
     const esPost = await Es.index({
-        index: ES_INDEX,
+        index: process.env.ES_INDEX,
         body: {
             id: postId,
             title: post.title,
@@ -115,11 +91,11 @@ const checkPostUser = async (postId, userId) => {
 };
 
 const editPost = async (postId, post) => {
-    const { title, content, location, type, mainImg } = post;
+    const { title, content, location, type, main_image } = post;
     await Post.updateOne(
         { _id: postId },
         {
-            mainImg,
+            main_image,
             title,
             content,
             location: { continent: location.continent, country: location.country },
@@ -170,6 +146,7 @@ export default {
     updateReadNum,
     updateLikeNum,
     updateSaveNum,
+    updateCommentNum,
     addCommentToPost,
     createPost,
     checkPostUser,
