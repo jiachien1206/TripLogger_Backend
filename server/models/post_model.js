@@ -99,7 +99,7 @@ const checkPostUser = async (postId, userId) => {
 };
 
 const editPost = async (postId, post) => {
-    const { title, content, location, tags, mainImg } = post;
+    const { title, content, location, type, mainImg } = post;
     await Post.updateOne(
         { _id: postId },
         {
@@ -107,7 +107,7 @@ const editPost = async (postId, post) => {
             title,
             content,
             location: { continent: location.continent, country: location.country },
-            tags,
+            type,
         }
     );
 };
