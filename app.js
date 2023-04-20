@@ -18,7 +18,6 @@ const io = new Server(server, {
 });
 import emitNewsfeedsUpdate from './util/emitNewsfeedUpdate.js';
 io.on('connection', (socket) => {
-    // console.log('success connect!');
     socket.on('Refresh user newsfeed', function (data) {
         emitNewsfeedsUpdate(io);
     });
