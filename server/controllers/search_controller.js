@@ -11,7 +11,7 @@ const searchKeyword = async (req, res) => {
     const results = await Search.searchPosts(keyword);
     const data = results.map((result) => {
         return {
-            url: `${env.process.DOMAIN}/post/${result._source.id}`,
+            url: `${process.env.DOMAIN}/post/${result._source.id}`,
             title: result._source.title,
             content: result._source.content,
         };

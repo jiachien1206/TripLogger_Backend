@@ -5,7 +5,7 @@ import User from '../schemas/user_schema.js';
 import Country from '../schemas/country_schema.js';
 import mongoose from 'mongoose';
 import Es from '../../util/elasticsearch.js';
-const { ES_INDEX } = env.process;
+const { ES_INDEX } = process.env;
 
 const queryAllPosts = async () => {
     const allPosts = await Post.find();
