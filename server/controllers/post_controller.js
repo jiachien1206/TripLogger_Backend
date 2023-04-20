@@ -19,6 +19,21 @@ const getTopPosts = async (req, res) => {
     res.status(200).json({ data: results });
 };
 
+const getContinentPosts = async (req, res) => {
+    const map = {
+        asia: '亞洲',
+        europe: '歐洲',
+        'north-america': '北美洲',
+        oceania: '大洋洲',
+        'south-america': '南美洲',
+        africa: '非洲',
+        antarctica: '南極洲',
+    };
+    const { continent } = req.params;
+    const posts = await Post.queryContinentPosts(map[continent]);
+    res.status(200).json({ data: posts });
+};
+
 const getRelevantPosts = async (req, res) => {
     const userId = req.user.id;
     const posts = await Cache.zrevrange(`user:${userId}`, 0, -1);
@@ -204,6 +219,7 @@ export {
     getNewPosts,
     getTopPosts,
     getRelevantPosts,
+    getContinentPosts,
     deleteRelevantPosts,
     getPost,
     readPost,

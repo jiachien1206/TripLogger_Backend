@@ -7,6 +7,7 @@ import {
     getTopPosts,
     getRelevantPosts,
     deleteRelevantPosts,
+    getContinentPosts,
     likePost,
     getPost,
     readPost,
@@ -34,5 +35,6 @@ router.route('/post').post(authentication, wrapAsync(writePost));
 router.route('/post/presignUrl').get(wrapAsync(getPresignUrl));
 router.route('/post/:id').put(authentication, wrapAsync(editPost));
 router.route('/post/:id').delete(authentication, wrapAsync(deletePost));
+router.route('/continents/:continent').get(wrapAsync(getContinentPosts));
 
 export default router;
