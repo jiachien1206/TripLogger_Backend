@@ -10,27 +10,20 @@ const calculatePostsScore = async (maxScore) => {
     allPosts.map((post) => {
         // (舊的數量*0.8+新的數量)*boost
         post.score =
-            (post.read_num * 0.8 + post.new_read_num) * 1.05 +
-            (post.like_num * 0.8 + post.new_like_num) * 1.5 +
-            (post.save_num * 0.8 + post.new_save_num) * 4 +
-            (post.comments_num * 0.8 + post.new_comments_num) * 6;
-
+            (post.read_num * 0.8 + post.new_read_num - post.read_num) * 1.05 +
+            (post.like_num * 0.8 + post.new_like_num - post.like_num) * 1.5 +
+            (post.save_num * 0.8 + post.new_save_num - post.save_num) * 4 +
+            (post.comment_num * 0.8 + post.new_comment_num - post.comment_num) * 6;
         // Time decay
         post.score =
-            post.score * Math.exp(-0.03 * ((new Date() - post.dates.last_interact) / 3600000));
+            post.score * Math.exp(-0.03 * ((new Date() - post.dates.last_interact) / 600000));
 
-        // 新的數量轉移到舊數量，新數量歸0
-        post.read_num += post.new_read_num;
-        post.new_read_num = 0;
-        post.like_num += post.new_like_num;
-        post.new_like_num = 0;
-        post.save_num += post.new_save_num;
-        post.new_save_num = 0;
-        post.comments_num += post.new_comments_num;
-        post.new_comments_num = 0;
-
+        // 新的數量轉移到舊數量
+        post.read_num = post.new_read_num;
+        post.like_num = post.new_like_num;
+        post.save_num = post.new_save_num;
+        post.comment_num = post.new_comment_num;
         post.save();
-
         // 找最大分數
         if (post.score > maxScore) {
             maxScore = post.score;
@@ -48,7 +41,6 @@ const topPosts = async (maxScore) => {
             });
             return acc;
         }, []);
-
         await Cache.del('top-posts');
         await Cache.zadd(
             'top-posts',
@@ -78,7 +70,7 @@ const setUserNewsfeed = async () => {
                 (acc, score) => acc + score,
                 0
             );
-            const catScoreSum = Object.values(user.cat_score).reduce(
+            const typeScoreSum = Object.values(user.type_score).reduce(
                 (acc, score) => acc + score,
                 0
             );
@@ -90,10 +82,10 @@ const setUserNewsfeed = async () => {
                 locationScore[key] = score;
             }
 
-            let catScore = {};
-            for (const [key, value] of Object.entries(user.cat_score)) {
-                const score = user.cat_pre[key] * (value / catScoreSum);
-                catScore[key] = score;
+            let typeScore = {};
+            for (const [key, value] of Object.entries(user.type_score)) {
+                const score = user.type_pre[key] * (value / typeScoreSum);
+                typeScore[key] = score;
             }
             const newsFeed = [];
 
@@ -103,10 +95,10 @@ const setUserNewsfeed = async () => {
                 } else {
                     const location = JSON.parse(newsFeed[Math.floor(i / 2)].post).location
                         .continent;
-                    const cat = JSON.parse(newsFeed[Math.floor(i / 2)].post).type;
+                    const type = JSON.parse(newsFeed[Math.floor(i / 2)].post).type;
                     // TOP文章分數*user對該location分數*user對該category分數
                     newsFeed[Math.floor(i / 2)].score =
-                        Number(posts[i]) * locationScore[location] * catScore[cat];
+                        Number(posts[i]) * locationScore[location] * typeScore[type];
                 }
             }
             // 丟進Redis sorted set
@@ -138,4 +130,5 @@ const UpdateFeeds = async () => {
         console.log(error);
     }
 };
+
 export { UpdateFeeds };
