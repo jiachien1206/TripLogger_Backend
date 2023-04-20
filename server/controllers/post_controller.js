@@ -43,7 +43,7 @@ const getPost = async (req, res) => {
     res.status(200).json({ data: post });
 };
 
-const addRead = async (req, res) => {
+const readPost = async (req, res) => {
     const postId = req.params.id;
     const { userId, location, tag } = req.body;
     console.log(userId);
@@ -190,7 +190,7 @@ export {
     getRelevantPosts,
     deleteRelevantPosts,
     getPost,
-    addRead,
+    readPost,
     likePost,
     savePost,
     getPostUserStatus,

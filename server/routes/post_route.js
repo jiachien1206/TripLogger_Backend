@@ -9,7 +9,7 @@ import {
     deleteRelevantPosts,
     likePost,
     getPost,
-    addRead,
+    readPost,
     savePost,
     getPostUserStatus,
     writePost,
@@ -24,7 +24,7 @@ router.route('/top-posts').get(wrapAsync(getTopPosts));
 router.route('/relevant-posts').get(authentication, wrapAsync(getRelevantPosts));
 router.route('/relevant-posts').delete(authentication, wrapAsync(deleteRelevantPosts));
 router.route('/posts/:id').get(getPost);
-router.route('/posts/:id/reads').post(addRead);
+router.route('/posts/:id/reads').post(readPost);
 router.route('/posts/:id/like').post(authentication, wrapAsync(likePost));
 router.route('/posts/:id/save').post(authentication, wrapAsync(savePost));
 router.route('/posts-user-status').get(authentication, wrapAsync(getPostUserStatus));
