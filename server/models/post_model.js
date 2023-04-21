@@ -34,8 +34,8 @@ const queryPostsByIds = async (postIds) => {
     return posts;
 };
 
-const queryContinentPosts = async (continent) => {
-    const posts = await Post.find({ 'location.continent': continent });
+const queryContinentPosts = async (continent, types) => {
+    const posts = await Post.find({ 'location.continent': continent, type: { $in: types } });
     return posts;
 };
 
