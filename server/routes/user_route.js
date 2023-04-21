@@ -10,6 +10,7 @@ import {
     editUserSetting,
     getUserPosts,
     getUserVisited,
+    getUserSavedPosts,
     generateUserNewsfeed,
 } from '../controllers/user_controller.js';
 
@@ -19,6 +20,7 @@ router.route('/users/:id/setting').get(authentication, wrapAsync(getUserData));
 router.route('/users/:id/setting').put(authentication, wrapAsync(editUserSetting));
 router.route('/users/:id/posts').get(wrapAsync(getUserPosts));
 router.route('/users/:id/visited').get(authentication, wrapAsync(getUserVisited));
+router.route('/users/:id/saved').post(authentication, wrapAsync(getUserSavedPosts));
 router.route('/user/newsfeed').post(authentication, wrapAsync(generateUserNewsfeed));
 
 export default router;

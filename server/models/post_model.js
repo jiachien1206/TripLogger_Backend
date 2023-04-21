@@ -29,6 +29,11 @@ const queryPostWithComments = async (postId) => {
     }
 };
 
+const queryPostsByIds = async (postIds) => {
+    const posts = await Post.find({ _id: { $in: postIds } });
+    return posts;
+};
+
 const queryContinentPosts = async (continent) => {
     const posts = await Post.find({ 'location.continent': continent });
     return posts;
@@ -142,6 +147,7 @@ export default {
     queryAllPosts,
     queryNewPosts,
     queryPostWithComments,
+    queryPostsByIds,
     queryContinentPosts,
     updateReadNum,
     updateLikeNum,

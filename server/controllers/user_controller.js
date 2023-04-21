@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import User from '../models/user_model.js';
+import Post from '../models/post_model.js';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -175,6 +176,12 @@ const getUserVisited = async (req, res) => {
     res.status(200).json({ data: visitedISO3 });
 };
 
+const getUserSavedPosts = async (req, res) => {
+    const { postIds } = req.body;
+    const posts = await Post.queryPostsByIds(postIds);
+    res.status(200).json({ data: posts });
+};
+
 export {
     signup,
     signin,
@@ -183,4 +190,5 @@ export {
     generateUserNewsfeed,
     getUserPosts,
     getUserVisited,
+    getUserSavedPosts,
 };
