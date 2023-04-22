@@ -38,11 +38,13 @@ const queryPostWithComments = async (postId) => {
     }
 };
 
-const queryContinentPosts = async (continent) => {
-    const posts = await Post.find({ 'location.continent': continent }).populate({
-        path: 'authorId',
-        select: ['name', 'image'],
-    });
+const queryPostsByIds = async (postIds) => {
+    const posts = await Post.find({ _id: { $in: postIds } });
+    return posts;
+};
+
+const queryContinentPosts = async (continent, types) => {
+    const posts = await Post.find({ 'location.continent': continent, type: { $in: types } });
     return posts;
 };
 
@@ -154,6 +156,7 @@ export default {
     queryAllPosts,
     queryNewPosts,
     queryPostWithComments,
+    queryPostsByIds,
     queryContinentPosts,
     updateReadNum,
     updateLikeNum,

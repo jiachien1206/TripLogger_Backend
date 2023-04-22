@@ -29,8 +29,15 @@ const getContinentPosts = async (req, res) => {
         africa: '非洲',
         antarctica: '南極洲',
     };
+    const allTypes = ['交通', '住宿', '景點', '證件', '其他', '恐怖故事', '省錢妙招'];
     const { continent } = req.params;
-    const posts = await Post.queryContinentPosts(map[continent]);
+    let { types } = req.query;
+    if (types === 'undefined' || types === '') {
+        types = allTypes;
+    } else {
+        types = types.split(',');
+    }
+    const posts = await Post.queryContinentPosts(map[continent], types);
     res.status(200).json({ data: posts });
 };
 
