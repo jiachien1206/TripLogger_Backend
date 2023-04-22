@@ -44,7 +44,13 @@ const queryPostsByIds = async (postIds) => {
 };
 
 const queryContinentPosts = async (continent, types) => {
-    const posts = await Post.find({ 'location.continent': continent, type: { $in: types } });
+    const posts = await Post.find({
+        'location.continent': continent,
+        type: { $in: types },
+    }).populate({
+        path: 'authorId',
+        select: ['name', 'image'],
+    });
     return posts;
 };
 
