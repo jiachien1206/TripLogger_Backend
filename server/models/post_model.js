@@ -7,12 +7,21 @@ import Es from '../../util/elasticsearch.js';
 const { ES_INDEX } = process.env;
 
 const queryAllPosts = async () => {
-    const allPosts = await Post.find();
+    const allPosts = await Post.find().populate({
+        path: 'authorId',
+        select: ['name', 'image'],
+    });
     return allPosts;
 };
 
 const queryNewPosts = async (limit) => {
-    const newPosts = await Post.find().sort({ 'dates.post_date': 'desc' }).limit(limit);
+    const newPosts = await Post.find()
+        .sort({ 'dates.post_date': 'desc' })
+        .populate({
+            path: 'authorId',
+            select: ['name', 'image'],
+        })
+        .limit(limit);
     return newPosts;
 };
 
@@ -35,7 +44,13 @@ const queryPostsByIds = async (postIds) => {
 };
 
 const queryContinentPosts = async (continent, types) => {
-    const posts = await Post.find({ 'location.continent': continent, type: { $in: types } });
+    const posts = await Post.find({
+        'location.continent': continent,
+        type: { $in: types },
+    }).populate({
+        path: 'authorId',
+        select: ['name', 'image'],
+    });
     return posts;
 };
 
