@@ -32,7 +32,7 @@ router.route('/posts/:id/save').post(authentication, wrapAsync(savePost));
 router.route('/posts/:id/num').get(wrapAsync(getPostNumbers));
 router.route('/posts-user-status').get(authentication, wrapAsync(getPostUserStatus));
 router.route('/post').post(authentication, wrapAsync(writePost));
-router.route('/post/presignUrl').get(wrapAsync(getPresignUrl));
+router.route('/post/presignUrl').get(authentication, wrapAsync(getPresignUrl));
 router.route('/post/:id').put(authentication, wrapAsync(editPost));
 router.route('/post/:id').delete(authentication, wrapAsync(deletePost));
 router.route('/continents/:continent').get(wrapAsync(getContinentPosts));
