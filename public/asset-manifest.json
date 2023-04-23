@@ -1,0 +1,35 @@
+{
+  "files": {
+    "main.css": "/static/css/main.bb8f2a1a.css",
+    "main.js": "/static/js/main.d4e59d40.js",
+    "static/media/angry.gif": "/static/media/angry.856444694407d8b8cec4.gif",
+    "static/media/wow.gif": "/static/media/wow.ef7d0f678916276471cc.gif",
+    "static/media/haha.gif": "/static/media/haha.4f08b2f475f37b8538bb.gif",
+    "static/media/sad.gif": "/static/media/sad.e79dd3e39235e399ff22.gif",
+    "static/media/like.gif": "/static/media/like.aff081bcd587d0f07408.gif",
+    "static/media/love.gif": "/static/media/love.50b9fdeacac653ca680e.gif",
+    "static/media/reactions.png": "/static/media/reactions.e3195de9e41856c5a40d.png",
+    "static/media/map.png": "/static/media/map.7dc4007f463ac379a669.png",
+    "static/media/profile.png": "/static/media/profile.0a0ddde53cea92ddae0f.png",
+    "static/media/logo.png": "/static/media/logo.04f2044ec6a84ef38829.png",
+    "static/media/user_map.png": "/static/media/user_map.8a02f333ec59dc19ef85.png",
+    "static/media/asia.png": "/static/media/asia.aee9948b82859370f3ca.png",
+    "static/media/north-america.png": "/static/media/north-america.73ce1b918e5adaf81fd7.png",
+    "static/media/antarctica.png": "/static/media/antarctica.4a4ecd1d3a919d8846a8.png",
+    "static/media/africa.png": "/static/media/africa.badd67f289c8d878e34a.png",
+    "static/media/europe.png": "/static/media/europe.c75c771ce7980066ea7c.png",
+    "static/media/oceania.png": "/static/media/oceania.0c532c74e3c00765079f.png",
+    "static/media/thumbs-up-regular.svg": "/static/media/thumbs-up-regular.5e728e04ab6373b8a197a7150cfc1175.svg",
+    "static/media/thumbs-up-solid.svg": "/static/media/thumbs-up-solid.4f3ae31b5bddce7e922e745621e9a5c0.svg",
+    "static/media/marker.svg": "/static/media/marker.11b947ca53770ae79c5d61de014f753d.svg",
+    "static/media/send.svg": "/static/media/send.14dcc23a6cb0d12146838ea196f3bd7e.svg",
+    "static/media/bar.svg": "/static/media/bar.dd92aed316c5967acbf1f7094cd87de4.svg",
+    "index.html": "/index.html",
+    "main.bb8f2a1a.css.map": "/static/css/main.bb8f2a1a.css.map",
+    "main.d4e59d40.js.map": "/static/js/main.d4e59d40.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.bb8f2a1a.css",
+    "static/js/main.d4e59d40.js"
+  ]
+}
