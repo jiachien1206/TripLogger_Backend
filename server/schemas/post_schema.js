@@ -22,7 +22,8 @@ const postSchema = new Schema({
     content: { type: String, required: [true, 'Write some content.'] },
     dates: {
         post_date: { type: Date, default: Date.now, immutable: true },
-        travel_date: { type: Date, default: Date.now },
+        start_date: { type: Date, default: Date.now },
+        end_date: { type: Date, default: Date.now },
         last_interact: { type: Date, default: Date.now },
     },
     comments: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Comment' }],
