@@ -75,6 +75,15 @@ const signin = async (req, res) => {
     return res.status(200).json({ data: { user, accessToken } });
 };
 
+const checkEmail = async (req, res) => {
+    const { email } = req.body;
+    const isUser = await User.userExist(email);
+    if (isUser) {
+        return res.status(400).json({ error: 'User already exists.' });
+    }
+    res.status(200).json({ message: 'pass' });
+};
+
 const getUserData = async (req, res) => {
     const userId = req.user.id;
     const user = await User.queryUser(userId);
@@ -185,6 +194,7 @@ const getUserSavedPosts = async (req, res) => {
 export {
     signup,
     signin,
+    checkEmail,
     getUserData,
     editUserSetting,
     generateUserNewsfeed,
