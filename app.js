@@ -42,6 +42,10 @@ app.use('/api', profile_route);
 app.use('/api', comment_route);
 app.use('/api', search_route);
 
+app.get('*', function (req, res) {
+    res.sendFile('public', 'index.html');
+});
+
 // Error handling
 app.use(function (err, req, res, next) {
     console.log(err);
