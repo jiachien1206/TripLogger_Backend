@@ -44,7 +44,7 @@ const updatePostLikeNum = async () => {
 };
 
 const updatePostSaveNum = async () => {
-    const posts = await Cache.hgetall('posts:save_num');
+    const posts = await Cache.hgetall('posts:save-num');
     for (const [key, value] of Object.entries(posts)) {
         await Post.updateSaveNum(key, value);
     }
