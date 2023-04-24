@@ -3,3 +3,7 @@ node_modules
 
 # Mac
 .DS_Store
+
+# Tools
+test
+initializeCache.js
