@@ -3,6 +3,10 @@ dotenv.config();
 import express from 'express';
 const app = express();
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
 
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
@@ -43,7 +47,7 @@ app.use('/api', comment_route);
 app.use('/api', search_route);
 
 app.get('*', function (req, res) {
-    res.sendFile('public', 'index.html');
+    res.sendFile(path.join(dirname, 'public', 'index.html'));
 });
 
 // Error handling
