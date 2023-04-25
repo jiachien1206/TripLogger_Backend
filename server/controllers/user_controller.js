@@ -9,7 +9,8 @@ import Cache from '../../util/cache.js';
 
 const signup = async (req, res) => {
     const { name, email, password, location_pre, type_pre } = req.body;
-    if (!name || !email || !password || name.length < 3) {
+    console.log(name, email, password);
+    if (!name || !email || !password) {
         return res.status(400).json({ error: 'Name, email and password are required.' });
     }
     if (!validator.isEmail(email)) {
