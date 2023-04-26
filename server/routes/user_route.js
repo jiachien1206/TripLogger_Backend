@@ -7,6 +7,7 @@ import {
     signup,
     signin,
     checkEmail,
+    logout,
     getUserData,
     editUserSetting,
     getUserPosts,
@@ -18,6 +19,7 @@ import {
 router.route('/user/signup').post(wrapAsync(signup));
 router.route('/user/signin').post(wrapAsync(signin));
 router.route('/user/signup-email').post(wrapAsync(checkEmail));
+router.route('/user/logout').post(authentication, wrapAsync(logout));
 router.route('/user/setting').get(authentication, wrapAsync(getUserData));
 router.route('/user/setting').put(authentication, wrapAsync(editUserSetting));
 router.route('/user/posts').get(authentication, wrapAsync(getUserPosts));

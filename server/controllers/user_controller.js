@@ -84,6 +84,14 @@ const checkEmail = async (req, res) => {
     res.status(200).json({ message: 'pass' });
 };
 
+const logout = async (req, res) => {
+    const userId = req.user.id;
+    const { logoutTime } = req.body;
+    await User.logout(userId, logoutTime);
+    console.log(`User ${userId} logged out.`);
+    res.status(200).json({ message: `User ${userId} logged out.` });
+};
+
 const getUserData = async (req, res) => {
     const userId = req.user.id;
     const user = await User.queryUser(userId);
@@ -194,6 +202,7 @@ const getUserSavedPosts = async (req, res) => {
 export {
     signup,
     signin,
+    logout,
     checkEmail,
     getUserData,
     editUserSetting,

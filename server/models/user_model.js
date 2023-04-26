@@ -10,6 +10,10 @@ const signup = async (name, email, password, location_pre, type_pre, provider) =
     return user;
 };
 
+const logout = async (userId, logoutTime) => {
+    await User.updateOne({ _id: userId }, { last_login: logoutTime });
+};
+
 const getUser = async (email) => {
     const [user] = await User.find({ email: email });
     return user;
@@ -106,6 +110,7 @@ const updateUserSetting = async (userId, name, email, image, location, type) => 
 
 export default {
     signup,
+    logout,
     getUser,
     userExist,
     queryUser,
