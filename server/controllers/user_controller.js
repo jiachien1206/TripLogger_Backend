@@ -9,7 +9,6 @@ import Cache from '../../util/cache.js';
 
 const signup = async (req, res) => {
     const { name, email, password, location_pre, type_pre } = req.body;
-    console.log(name, email, password);
     if (!name || !email || !password) {
         return res.status(400).json({ error: 'Name, email and password are required.' });
     }
@@ -46,7 +45,6 @@ const signup = async (req, res) => {
 
 const signin = async (req, res) => {
     const { email, password } = req.body;
-
     const isUser = await User.userExist(email);
     if (!isUser) {
         return res.status(400).json({ error: 'User not exists.' });
@@ -59,7 +57,7 @@ const signin = async (req, res) => {
     const hash = user.password;
     const isValid = await bcrypt.compare(password, hash);
     if (!isValid) {
-        res.status(403).json({
+        return res.status(403).json({
             errors: 'Password is not valid.',
         });
     }
@@ -96,7 +94,7 @@ const logout = async (req, res) => {
 const getUserData = async (req, res) => {
     const userId = req.user.id;
     const user = await User.queryUser(userId);
-    const { name, email, location_pre, type_pre, image } = user;
+    const { name, email, location_pre, type_pre, image, notification } = user;
     let location = Object.entries(location_pre).sort((a, b) => b[1] - a[1]);
     location = location.map((l) => {
         return l[0];
@@ -106,11 +104,13 @@ const getUserData = async (req, res) => {
         return t[0];
     });
     const userData = {
+        userId,
         name,
         email,
         location,
         type,
         image,
+        notification,
     };
     return res.status(200).json({ data: userData });
 };
@@ -199,7 +199,17 @@ const getUserSavedPosts = async (req, res) => {
     const posts = await Post.queryPostsByIds(postIds);
     res.status(200).json({ data: posts });
 };
+const getUserNotification = async (req, res) => {
+    const userId = req.user.id;
+    const notification = await User.getNotification(userId);
+    res.status(200).json({ data: notification });
+};
 
+const readUserNotification = async (req, res) => {
+    const userId = req.user.id;
+    await User.readNotification(userId);
+    res.status(200).json({ message: `${userId} read notifications.` });
+};
 export {
     signup,
     signin,
@@ -211,4 +221,6 @@ export {
     getUserPosts,
     getUserVisited,
     getUserSavedPosts,
+    getUserNotification,
+    readUserNotification,
 };

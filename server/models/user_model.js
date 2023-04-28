@@ -108,6 +108,36 @@ const updateUserSetting = async (userId, name, email, image, location, type) => 
     );
 };
 
+const addNotification = async (
+    authorId,
+    content,
+    commentor,
+    postId,
+    postTitle,
+    commenterImg,
+    type
+) => {
+    await User.updateOne(
+        { _id: authorId },
+        {
+            $push: {
+                notification: {
+                    $each: [{ commentor, postId, postTitle, type, commenterImg, content }],
+                    $position: 0,
+                    $slice: 6,
+                },
+            },
+        }
+    );
+};
+const getNotification = async (userId) => {
+    const notification = await User.findById(userId).select('notification');
+    return notification.notification;
+};
+
+const readNotification = async (userId) => {
+    await User.updateMany({ _id: userId }, { $set: { 'notification.$[].read': true } });
+};
 export default {
     signup,
     logout,
@@ -123,4 +153,7 @@ export default {
     queryUserSavedPosts,
     queryUserLikedPosts,
     updateUserSetting,
+    addNotification,
+    getNotification,
+    readNotification,
 };

@@ -1,12 +1,14 @@
 import Comment from '../models/comment_model.js';
 import Post from '../models/post_model.js';
 import Cache from '../../util/cache.js';
+import User from '../models/user_model.js';
+import { emitCommentMsg } from '../../app.js';
 
 const writeComment = async (req, res) => {
     const postId = req.params.id;
     const userId = req.user.id;
     const content = req.body.comment;
-    const { location, type } = req.body;
+    const { location, type, commenter, authorId, title, commenterImg } = req.body;
     const comment = {
         postId,
         userId,
@@ -27,6 +29,20 @@ const writeComment = async (req, res) => {
         await Cache.hincrby(`user-scores-o-${userId}`, `${location}`, 20);
         await Cache.hincrby(`user-scores-o-${userId}`, `${type}`, 20);
     }
+
+    if (userId !== authorId) {
+        await User.addNotification(
+            authorId,
+            content,
+            commenter,
+            postId,
+            title,
+            commenterImg,
+            'comment'
+        );
+        emitCommentMsg('new notification', authorId);
+    }
+
     res.status(200).json({ message: `New comment ${commentId} published.` });
 };
 

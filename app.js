@@ -21,11 +21,20 @@ const io = new Server(server, {
         origin: process.env.DOMAIN,
     },
 });
+
 import emitNewsfeedsUpdate from './util/emitNewsfeedUpdate.js';
+let client = new Map();
 io.on('connection', (socket) => {
     console.log(socket.id, 'connected');
+    socket.on('Map user id and socket id', function (data) {
+        client.set(data.userId, socket.id);
+    });
     socket.on('Refresh user newsfeed', function (data) {
         emitNewsfeedsUpdate(io);
+    });
+    socket.on('disconnect', (reason) => {
+        client.delete(socket.id);
+        console.log('disconnet', socket.id);
     });
 });
 
@@ -60,9 +69,10 @@ server.listen(process.env.PORT, () => {
     console.log(`This application is running on local host:${process.env.PORT}.`);
 });
 
-export const getSocketServer = () => {
-    if (!io) {
-        throw new Error('Socket.io not initialized');
+export const emitCommentMsg = (message, userId) => {
+    const socketId = client.get(userId);
+    if (socketId) {
+        io.to(socketId).emit('New notification', message);
+        console.log('send notification to socketid');
     }
-    return io;
 };
