@@ -54,6 +54,18 @@ const userSchema = new Schema({
     ],
     join_date: { type: Date, default: Date.now, immutable: true },
     last_login: { type: Date, default: Date.now },
+    notification: [
+        {
+            commentor: { type: String },
+            postId: { type: mongoose.SchemaTypes.ObjectId, ref: 'Post' },
+            postTitle: { type: String },
+            type: { type: String, enum: ['comment', 'like'] },
+            commentAt: { type: Date, default: Date.now },
+            content: { type: String },
+            read: { type: Boolean, default: false },
+            commenterImg: { type: String },
+        },
+    ],
 });
 
 export default mongoose.model('User', userSchema);

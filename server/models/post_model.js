@@ -77,7 +77,7 @@ const updateCommentNum = async (postId, commentNum) => {
 };
 
 const addCommentToPost = async (postId, commentId) => {
-    await Post.updateOne({ _id: postId }, { $push: { comments: commentId } });
+    await Post.findOneAndUpdate({ _id: postId }, { $push: { comments: commentId } });
 };
 
 const createPost = async (userId, content) => {
