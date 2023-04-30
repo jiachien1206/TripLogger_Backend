@@ -5,6 +5,8 @@ import Cache from './cache.js';
 import Post from '../server/models/post_model.js';
 import User from '../server/models/user_model.js';
 
+const time = new Date();
+
 const calculatePostsScore = async (maxScore) => {
     const allPosts = await Post.queryAllPosts();
     allPosts.map((post) => {
@@ -46,7 +48,7 @@ const topPosts = async (maxScore) => {
             'top-posts',
             ...postNormalized.map(({ post, score }) => [Math.round(score * 10000) / 10000, post])
         );
-        console.log('Top posts cached.');
+        console.log(`Top posts cached at ${time}`);
     } catch (e) {
         console.log(e);
     }
@@ -54,7 +56,7 @@ const topPosts = async (maxScore) => {
 const newPosts = async (limit) => {
     const posts = await Post.queryNewPosts(limit);
     await Cache.set('new-posts', JSON.stringify(posts));
-    console.log('New posts cached.');
+    console.log(`New posts cached at ${time}.`);
 };
 const setUserNewsfeed = async () => {
     try {
@@ -110,7 +112,7 @@ const setUserNewsfeed = async () => {
             );
             await Cache.expire(`user:${userId}`, 86400);
         }
-        console.log('Users newsfeed cached.');
+        console.log(`Users newsfeed cached at ${time}`);
     } catch (error) {
         console.log(error);
     }
