@@ -6,6 +6,7 @@ import validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Cache from '../../util/cache.js';
+import { getPostUserStatus } from './post_controller.js';
 
 const signup = async (req, res) => {
     const { name, email, password, location_pre, type_pre } = req.body;
@@ -177,7 +178,7 @@ const generateUserNewsfeed = async (req, res) => {
 };
 
 const getUserPosts = async (req, res) => {
-    const userId = req.user.id;
+    const userId = req.params.id;
     const posts = await User.queryUserPosts(userId);
     if (posts.error) {
         return res.status(400).json({ message: "Can't find user's post." });
