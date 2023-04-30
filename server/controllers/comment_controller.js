@@ -30,9 +30,9 @@ const writeComment = async (req, res) => {
         await Cache.hincrby(`user-scores-o-${userId}`, `${type}`, 20);
     }
 
-    if (userId !== authorId) {
+    if (userId !== authorId._id) {
         await User.addNotification(
-            authorId,
+            authorId._id,
             content,
             commenter,
             postId,
@@ -40,7 +40,7 @@ const writeComment = async (req, res) => {
             commenterImg,
             'comment'
         );
-        emitCommentMsg('new notification', authorId);
+        emitCommentMsg('new notification', authorId._id);
     }
 
     res.status(200).json({ message: `New comment ${commentId} published.` });
