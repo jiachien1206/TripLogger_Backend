@@ -24,7 +24,7 @@ router.route('/user/signup-email').post(wrapAsync(checkEmail));
 router.route('/user/logout').post(authentication, wrapAsync(logout));
 router.route('/user/setting').get(authentication, wrapAsync(getUserData));
 router.route('/user/setting').put(authentication, wrapAsync(editUserSetting));
-router.route('/user/posts').get(authentication, wrapAsync(getUserPosts));
+router.route('/user/:id/posts').get(wrapAsync(getUserPosts));
 router.route('/user/visited').get(authentication, wrapAsync(getUserVisited));
 router.route('/user/saved').post(authentication, wrapAsync(getUserSavedPosts));
 router.route('/user/newsfeed').post(authentication, wrapAsync(generateUserNewsfeed));

@@ -141,7 +141,7 @@ const savePost = async (req, res) => {
         num *= -1;
         score *= -1;
     }
-    await Cache.hincrby('posts:save_num', postId, num);
+    await Cache.hincrby('posts:save-num', postId, num);
     if (
         (0 <= currentMin && currentMin < 10) ||
         (20 <= currentMin && currentMin < 30) ||

@@ -28,6 +28,7 @@ io.on('connection', (socket) => {
     console.log(socket.id, 'connected');
     socket.on('Map user id and socket id', function (data) {
         client.set(data.userId, socket.id);
+        console.log(client);
     });
     socket.on('Refresh user newsfeed', function (data) {
         emitNewsfeedsUpdate(io);

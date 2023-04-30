@@ -14,8 +14,9 @@ const writeComment = async (req, res) => {
         userId,
         content,
     };
+    const date = new Date();
     const commentId = await Comment.addComment(comment);
-    await Post.addCommentToPost(postId, commentId);
+    await Post.addCommentToPost(postId, commentId, date);
     await Cache.hincrby('posts:comment-num', postId, 1);
     const currentMin = new Date().getMinutes();
     if (
@@ -30,9 +31,9 @@ const writeComment = async (req, res) => {
         await Cache.hincrby(`user-scores-o-${userId}`, `${type}`, 20);
     }
 
-    if (userId !== authorId) {
+    if (userId !== authorId._id) {
         await User.addNotification(
-            authorId,
+            authorId._id,
             content,
             commenter,
             postId,
@@ -40,7 +41,7 @@ const writeComment = async (req, res) => {
             commenterImg,
             'comment'
         );
-        emitCommentMsg('new notification', authorId);
+        emitCommentMsg('new notification', authorId._id);
     }
 
     res.status(200).json({ message: `New comment ${commentId} published.` });

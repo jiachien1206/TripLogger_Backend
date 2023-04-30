@@ -27,10 +27,19 @@ const queryNewPosts = async (limit) => {
 
 const queryPostWithComments = async (postId) => {
     try {
-        const [post] = await Post.find({ _id: postId }).populate({
-            path: 'comments',
-            select: ['content', 'userId'],
-        });
+        const [post] = await Post.find({ _id: postId })
+            .populate({
+                path: 'comments',
+                select: ['content', 'userId', 'timestamp'],
+                populate: {
+                    path: 'userId',
+                    select: ['name', 'image'],
+                },
+            })
+            .populate({
+                path: 'authorId',
+                select: ['name', 'image'],
+            });
         return post;
     } catch (error) {
         console.log(error);
@@ -76,8 +85,11 @@ const updateCommentNum = async (postId, commentNum) => {
     await Post.updateOne({ _id: postId }, { new_comment_num: commentNum });
 };
 
-const addCommentToPost = async (postId, commentId) => {
-    await Post.findOneAndUpdate({ _id: postId }, { $push: { comments: commentId } });
+const addCommentToPost = async (postId, commentId, date) => {
+    await Post.updateOne(
+        { _id: postId },
+        { $push: { comments: commentId }, $set: { 'dates.last_interact': date } }
+    );
 };
 
 const createPost = async (userId, content) => {
