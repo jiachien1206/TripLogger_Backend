@@ -32,7 +32,7 @@ const queryAllUsers = async () => {
 const queryUserPosts = async (userId) => {
     const [user] = await User.find({ _id: userId }).populate({
         path: 'posts',
-        select: ['title'],
+        select: ['title', 'main_image', 'dates', 'location', 'type'],
     });
     return user.posts;
 };
