@@ -103,12 +103,18 @@ const createPost = async (userId, content) => {
 };
 
 const esCreatePost = async (postId, post) => {
+    const date = new Date();
     const esPost = await Es.index({
         index: process.env.ES_INDEX,
         body: {
             id: postId,
             title: post.title,
             content: post.content,
+            main_image: post.main_image,
+            continent: post.location.continent,
+            country: post.location.country,
+            type: post.type,
+            date,
         },
     });
     return esPost._id;
@@ -147,7 +153,7 @@ const esEditPost = async (postId, post) => {
                 },
             },
             script: {
-                inline: `ctx._source.title = '${post.title}'; ctx._source.content= '${post.content}';`,
+                inline: `ctx._source.title = '${post.title}'; ctx._source.content= '${post.content}';ctx._source.main_image= '${post.main_image}';`,
                 lang: 'painless',
             },
         },

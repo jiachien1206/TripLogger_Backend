@@ -5,10 +5,10 @@ const searchPosts = async (keyword) => {
     const searchResponse = await Es.search({
         index: process.env.ES_INDEX,
         body: {
-            size: 40,
+            size: 20,
             query: {
                 multi_match: {
-                    fields: ['title', 'content'],
+                    fields: ['title', 'content', 'continent', 'country', 'type'],
                     query: keyword,
                     fuzziness: 'AUTO',
                     operator: 'or',
