@@ -30,7 +30,11 @@ const queryPostWithComments = async (postId) => {
         const [post] = await Post.find({ _id: postId })
             .populate({
                 path: 'comments',
-                select: ['content', 'userId'],
+                select: ['content', 'userId', 'timestamp'],
+                populate: {
+                    path: 'userId',
+                    select: ['name', 'image'],
+                },
             })
             .populate({
                 path: 'authorId',
