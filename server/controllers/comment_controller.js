@@ -14,8 +14,9 @@ const writeComment = async (req, res) => {
         userId,
         content,
     };
+    const date = new Date();
     const commentId = await Comment.addComment(comment);
-    await Post.addCommentToPost(postId, commentId);
+    await Post.addCommentToPost(postId, commentId, date);
     await Cache.hincrby('posts:comment-num', postId, 1);
     const currentMin = new Date().getMinutes();
     if (
