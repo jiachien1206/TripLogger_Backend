@@ -18,6 +18,24 @@ const setIndex = async () => {
                             type: 'text',
                             analyzer: 'my_chinese_analyzer',
                         },
+                        main_image: {
+                            type: 'text',
+                        },
+                        continent: {
+                            type: 'text',
+                            analyzer: 'my_chinese_analyzer',
+                        },
+                        country: {
+                            type: 'text',
+                            analyzer: 'my_chinese_analyzer',
+                        },
+                        type: {
+                            type: 'text',
+                            analyzer: 'my_chinese_analyzer',
+                        },
+                        date: {
+                            type: 'date',
+                        },
                     },
                 },
                 settings: {

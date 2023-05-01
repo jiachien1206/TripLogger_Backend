@@ -14,6 +14,11 @@ const searchKeyword = async (req, res) => {
             url: `${process.env.DOMAIN}/post/${result._source.id}`,
             title: result._source.title,
             content: result._source.content,
+            main_image: result._source.main_image,
+            type: result._source.type,
+            continent: result._source.continent,
+            country: result._source.country,
+            date: result._source.date,
         };
     });
     res.status(200).json({ data });
