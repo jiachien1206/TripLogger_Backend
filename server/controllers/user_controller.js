@@ -78,7 +78,7 @@ const signin = async (req, res) => {
 const checkEmail = async (req, res) => {
     const { email } = req.body;
     const isUser = await User.userExist(email);
-    if (isUser) {
+    if (isUser !== null) {
         return res.status(400).json({ error: 'User already exists.' });
     }
     res.status(200).json({ message: 'pass' });
