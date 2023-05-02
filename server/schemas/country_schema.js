@@ -13,6 +13,7 @@ const countrySchema = new Schema({
     subregion: { type: String },
     phone_code: { type: String },
     currency: { type: String },
+    introduction: { type: String },
     posts: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Post', default: [] }],
 });
 
