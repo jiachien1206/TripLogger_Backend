@@ -63,7 +63,7 @@ const setUserNewsfeed = async () => {
         const allUsers = await User.queryAllUsers();
 
         // 取出TOP100篇文章
-        const posts = await Cache.zrevrange('top-posts', 0, 99, 'WITHSCORES');
+        const posts = await Cache.zrevrange('top-posts', 0, 499, 'WITHSCORES');
 
         // 讀取每個user的資料
         for (const user of allUsers) {
@@ -90,14 +90,12 @@ const setUserNewsfeed = async () => {
                 typeScore[key] = score;
             }
             const newsFeed = [];
-
             for (let i = 0; i < posts.length; i++) {
                 if (!(i % 2)) {
-                    newsFeed.push({ post: posts[i] });
+                    newsFeed.push({ post: JSON.parse(posts[i])._id });
                 } else {
-                    const location = JSON.parse(newsFeed[Math.floor(i / 2)].post).location
-                        .continent;
-                    const type = JSON.parse(newsFeed[Math.floor(i / 2)].post).type;
+                    const location = JSON.parse(posts[i - 1]).location.continent;
+                    const type = JSON.parse(posts[i - 1]).type;
                     // TOP文章分數*user對該location分數*user對該category分數
                     newsFeed[Math.floor(i / 2)].score =
                         Number(posts[i]) * locationScore[location] * typeScore[type];
@@ -108,7 +106,7 @@ const setUserNewsfeed = async () => {
             await Cache.unlink([`user:${userId}`]);
             await Cache.zadd(
                 `user:${userId}`,
-                ...newsFeed.map(({ post, score }) => [Math.round(score * 1000000) / 1000, post])
+                ...newsFeed.map(({ post, score }) => [Math.round(score * 100000000) / 1000, post])
             );
             await Cache.expire(`user:${userId}`, 86400);
         }
@@ -125,7 +123,7 @@ const UpdateFeeds = async () => {
         // 丟進Redis sorted set
         await topPosts(maxScore);
         // 抓最新的所有文章
-        await newPosts(500);
+        // await newPosts(500);
         // 丟進Redis sorted set
         await setUserNewsfeed();
     } catch (error) {

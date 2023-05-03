@@ -44,10 +44,7 @@ const getContinentPosts = async (req, res) => {
 const getRelevantPosts = async (req, res) => {
     const userId = req.user.id;
     const posts = await Cache.zrevrange(`user:${userId}`, 0, -1);
-    const results = posts.map((post) => {
-        return JSON.parse(post);
-    });
-    res.status(200).json({ data: results });
+    res.status(200).json({ data: posts });
 };
 
 const deleteRelevantPosts = async (req, res) => {

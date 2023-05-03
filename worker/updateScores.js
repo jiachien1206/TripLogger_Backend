@@ -102,12 +102,12 @@ const updateUserScore = async (even) => {
     console.log(`Users read and like score updated.`);
 };
 
-await updatePostReadNum();
-await updatePostLikeNum();
-await updatePostSaveNum();
-await updatePostCommentNum();
-await updateUserLike(even);
-await updateUserScore(even);
+// await updatePostReadNum();
+// await updatePostLikeNum();
+// await updatePostSaveNum();
+// await updatePostCommentNum();
+// await updateUserLike(even);
+// await updateUserScore(even);
 await UpdateFeeds();
 socket.emit('Refresh user newsfeed', 'Online user refresh newsfeed.');
 process.exit(0);
