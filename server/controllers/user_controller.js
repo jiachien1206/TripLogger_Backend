@@ -6,7 +6,6 @@ import validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Cache from '../../util/cache.js';
-import { getPostUserStatus } from './post_controller.js';
 
 const signup = async (req, res) => {
     const { name, email, password, location_pre, type_pre } = req.body;
@@ -138,7 +137,7 @@ const generateUserNewsfeed = async (req, res) => {
         (acc, score) => acc + score,
         0
     );
-    const catScoreSum = Object.values(user.type_score).reduce((acc, score) => acc + score, 0);
+    const typeScoreSum = Object.values(user.type_score).reduce((acc, score) => acc + score, 0);
 
     // 把每個類別的分數除以加總獲得比例*user自己預設的喜好排序
     let locationScore = {};
@@ -146,34 +145,33 @@ const generateUserNewsfeed = async (req, res) => {
         const score = user.location_pre[key] * (value / locationScoreSum);
         locationScore[key] = score;
     }
-    let catScore = {};
+    let typeScore = {};
     for (const [key, value] of Object.entries(user.type_score)) {
-        const score = user.type_pre[key] * (value / catScoreSum);
-        catScore[key] = score;
+        const score = user.type_pre[key] * (value / typeScoreSum);
+        typeScore[key] = score;
     }
 
-    // 取出TOP1000篇文章
-    const posts = await Cache.zrevrange('top-posts', 0, 999, 'WITHSCORES');
+    // 取出TOP500篇文章
+    const posts = await Cache.zrevrange('top-posts', 0, 499, 'WITHSCORES');
     const newsFeed = [];
     for (let i = 0; i < posts.length; i++) {
         if (!(i % 2)) {
-            newsFeed.push({ post: posts[i] });
+            newsFeed.push({ post: JSON.parse(posts[i])._id });
         } else {
-            const location = JSON.parse(newsFeed[Math.floor(i / 2)].post).location.continent;
-            const cat = JSON.parse(newsFeed[Math.floor(i / 2)].post).type;
+            const location = JSON.parse(posts[i - 1]).location.continent;
+            const type = JSON.parse(posts[i - 1]).type;
             // TOP文章分數*user對該location分數*user對該category分數
             newsFeed[Math.floor(i / 2)].score =
-                Number(posts[i]) * locationScore[location] * catScore[cat];
+                Number(posts[i]) * locationScore[location] * typeScore[type];
         }
     }
 
     // 丟進Redis sorted set
-    await Cache.del(userId);
     await Cache.zadd(
         `user:${userId}`,
-        ...newsFeed.map(({ post, score }) => [Math.round(score * 1000000) / 1000, post])
+        ...newsFeed.map(({ post, score }) => [Math.round(score * 100000000) / 1000, post])
     );
-    await Cache.expire(userId, 86400);
+    await Cache.expire(`user:${userId}`, 86400);
     res.status(200).json({ message: `User ${userId} newsfeed cached.` });
 };
 
