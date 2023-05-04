@@ -1,5 +1,6 @@
 import Post from '../models/post_model.js';
 import User from '../models/user_model.js';
+import Country from '../models/country_model.js';
 import Cache from '../../util/cache.js';
 
 import { channel } from '../../util/queue.js';
@@ -210,10 +211,40 @@ const writePost = async (req, res) => {
     const content = req.body;
     const userId = req.user.id;
     content.authorId = userId;
-    const post = { userId, content, action: 'create' };
-    channel.sendToQueue('post-queue', Buffer.from(JSON.stringify(post)));
-    console.log('New post send to queue.');
-    res.status(200).json({ message: `New post send to queue.` });
+    if (
+        !content.main_image ||
+        content.title.length < 1 ||
+        content.title.length > 100 ||
+        !content.dates.start_date ||
+        !content.dates.end_date ||
+        new Date(content.dates.start_date) > new Date(content.dates.end_date) ||
+        content.content.length < 10 ||
+        content.content.length > 20500 ||
+        !content.type ||
+        !content.location.continent ||
+        !content.location.country
+    ) {
+        return res.status(400).json({ error: `Content format error` });
+    }
+    const postId = await Post.createPost(userId, content);
+    if (!postId) {
+        return res.status(500).json({ error: `New post created failed.` });
+    }
+    console.log(`Post ${postId} created.`);
+    const country = content.location.country;
+    await Country.addPostToCountry(country, postId);
+    const [post] = await Post.queryPostsByIds([postId]);
+    await Cache.lpush('new-posts', JSON.stringify(post));
+    await Cache.rpop('new-posts');
+    const esPostId = await Post.esCreatePost(postId, content);
+    if (esPostId) {
+        console.log(`New post ${esPostId} saved to elasticsearch.`);
+    } else {
+        return res.status(500).json({ error: `Elasticsearch created ${postId} failed.` });
+    }
+    channel.sendToQueue('post-queue', Buffer.from(JSON.stringify(postId)));
+    console.log('Update newsfeed job send to queue.');
+    res.status(200).json({ data: postId });
 };
 
 const editPost = async (req, res) => {
@@ -224,10 +255,22 @@ const editPost = async (req, res) => {
     if (!isExist) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
-    const post = { postId, content, action: 'edit' };
-    channel.sendToQueue('post-queue', Buffer.from(JSON.stringify(post)));
-    console.log('Edited post send to queue.');
-    res.status(200).json({ message: `Edited post send to queue.` });
+    if (
+        !content.main_image ||
+        content.title.length < 1 ||
+        content.title.length > 100 ||
+        content.content.length < 10 ||
+        content.content.length > 20500
+    ) {
+        return res.status(400).json({ error: `Content format error` });
+    }
+    await Post.editPost(postId, content);
+    console.log(`Post ${postId} edited.`);
+    await Post.esEditPost(postId, content);
+    console.log(`Post edited from elasticsearch.`);
+    channel.sendToQueue('post-queue', Buffer.from(JSON.stringify(postId)));
+    console.log('Update newsfeed job send to queue.');
+    res.status(200).json({ data: postId });
 };
 
 const deletePost = async (req, res) => {
@@ -237,10 +280,13 @@ const deletePost = async (req, res) => {
     if (!isExist) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
-    const post = { userId, postId, action: 'delete' };
-    channel.sendToQueue('post-queue', Buffer.from(JSON.stringify(post)));
-    console.log('Deleted post send to queue.');
-    res.status(200).json({ message: `Deleted post send to queue.` });
+    await Post.deletePost(userId, postId);
+    console.log(`Post ${postId} deleted.`);
+    await Post.esDeletePost(postId);
+    console.log(`Post ${postId} deleted from elasticsearch.`);
+    channel.sendToQueue('post-queue', Buffer.from(JSON.stringify(postId)));
+    console.log('Update newsfeed job send to queue.');
+    res.status(200).json({ data: postId });
 };
 
 export {

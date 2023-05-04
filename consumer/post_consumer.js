@@ -18,31 +18,7 @@ await Queue.connect();
 
 const consumePost = async () => {
     await channel.consume('post-queue', async (data) => {
-        const post = JSON.parse(Buffer.from(data.content));
         try {
-            if (post.action === 'create') {
-                const postId = await Post.createPost(post.userId, post.content);
-                if (!postId) {
-                    throw new Error();
-                } else {
-                    console.log(`Post ${postId} created.`);
-                    const country = post.content.location.country;
-                    await Country.addPostToCountry(country, postId);
-                    const esPostId = await Post.esCreatePost(postId, post.content);
-                    console.log(`New post ${esPostId} saved to elasticsearch.`);
-                }
-            } else if (post.action === 'edit') {
-                const postId = await Post.editPost(post.postId, post.content);
-                console.log(`Post ${postId} edited.`);
-                await Post.esEditPost(post.postId, post.content);
-                console.log(`Post edited from elasticsearch.`);
-            } else if (post.action === 'delete') {
-                await Post.deletePost(post.userId, post.postId);
-                console.log(`Post ${post.postId} deleted.`);
-                await Post.esDeletePost(post.postId);
-                console.log(`Post ${post.postId} deleted from elasticsearch.`);
-            }
-
             await UpdateFeeds();
             socket.emit('Refresh user newsfeed', 'Online user refresh newsfeed.');
         } catch (error) {

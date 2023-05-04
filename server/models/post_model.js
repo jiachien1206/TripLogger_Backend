@@ -48,7 +48,10 @@ const queryPostWithComments = async (postId) => {
 };
 
 const queryPostsByIds = async (postIds) => {
-    const posts = await Post.find({ _id: { $in: postIds } });
+    const posts = await Post.find({ _id: { $in: postIds } }).populate({
+        path: 'authorId',
+        select: ['name', 'image'],
+    });
     return posts;
 };
 
@@ -136,8 +139,6 @@ const editPost = async (postId, post) => {
             main_image,
             title,
             content,
-            location: { continent: location.continent, country: location.country },
-            type,
         }
     );
 };

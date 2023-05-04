@@ -68,14 +68,16 @@ const newPosts = async (limit) => {
     for (let i = 0; i < posts.length; i++) {
         await Cache.rpush('new-posts', JSON.stringify(posts[i]));
     }
-    await Cache.ltrim('new-posts', originalPostsLength + 1, -1);
+    console.log(originalPostsLength);
+    await Cache.ltrim('new-posts', originalPostsLength, -1);
+
     console.log(`New posts cached at ${time}.`);
 };
 const setUserNewsfeed = async () => {
     try {
         const allUsers = await User.queryAllUsers();
 
-        // 取出TOP100篇文章
+        // 取出TOP500篇文章
         const posts = await Cache.zrevrange('top-posts', 0, 499, 'WITHSCORES');
 
         // 讀取每個user的資料
@@ -131,12 +133,12 @@ const setUserNewsfeed = async () => {
 
 const UpdateFeeds = async () => {
     try {
+        // 抓最新的所有文章
+        await newPosts(500);
         // 更新每篇文章的分數
         let maxScore = await calculatePostsScore(0);
         // 丟進Redis sorted set
         await topPosts(maxScore);
-        // 抓最新的所有文章
-        await newPosts(500);
         // 丟進Redis sorted set
         await setUserNewsfeed();
     } catch (error) {
