@@ -177,7 +177,8 @@ const generateUserNewsfeed = async (req, res) => {
 
 const getUserPosts = async (req, res) => {
     const userId = req.params.id;
-    const posts = await User.queryUserPosts(userId);
+    const { num } = req.query;
+    const posts = await User.queryUserPosts(userId, num);
     if (posts.error) {
         return res.status(400).json({ message: "Can't find user's post." });
     }

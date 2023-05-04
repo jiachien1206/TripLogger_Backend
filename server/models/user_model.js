@@ -29,10 +29,11 @@ const queryAllUsers = async () => {
     return allUsers;
 };
 
-const queryUserPosts = async (userId) => {
+const queryUserPosts = async (userId, limit) => {
     const [user] = await User.find({ _id: userId }).populate({
         path: 'posts',
         select: ['title', 'main_image', 'dates', 'location', 'type'],
+        options: { sort: { 'dates.post_date': -1 }, limit: limit },
     });
     return user.posts;
 };
