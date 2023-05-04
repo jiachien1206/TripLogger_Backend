@@ -68,9 +68,7 @@ const newPosts = async (limit) => {
     for (let i = 0; i < posts.length; i++) {
         await Cache.rpush('new-posts', JSON.stringify(posts[i]));
     }
-    console.log(originalPostsLength);
     await Cache.ltrim('new-posts', originalPostsLength, -1);
-
     console.log(`New posts cached at ${time}.`);
 };
 const setUserNewsfeed = async () => {
