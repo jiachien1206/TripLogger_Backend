@@ -13,6 +13,7 @@ import {
     readPost,
     savePost,
     getPostNumbers,
+    getPosts,
     getPostUserStatus,
     writePost,
     getPresignUrl,
@@ -24,12 +25,12 @@ import authentication from '../middlewares/authentication.js';
 router.route('/latest-posts').get(wrapAsync(getNewPosts));
 router.route('/top-posts').get(wrapAsync(getTopPosts));
 router.route('/relevant-posts').get(authentication, wrapAsync(getRelevantPosts));
-router.route('/relevant-posts').delete(authentication, wrapAsync(deleteRelevantPosts));
 router.route('/posts/:id').get(getPost);
 router.route('/posts/:id/reads').post(wrapAsync(readPost));
 router.route('/posts/:id/like').post(authentication, wrapAsync(likePost));
 router.route('/posts/:id/save').post(authentication, wrapAsync(savePost));
 router.route('/posts/:id/num').get(wrapAsync(getPostNumbers));
+router.route('/posts').get(wrapAsync(getPosts));
 router.route('/posts-user-status').get(authentication, wrapAsync(getPostUserStatus));
 router.route('/post').post(authentication, wrapAsync(writePost));
 router.route('/post/presignUrl').get(authentication, wrapAsync(getPresignUrl));

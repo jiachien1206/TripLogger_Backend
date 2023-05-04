@@ -12,7 +12,7 @@ const socket = io.connect(process.env.SERVER, {
     reconnection: true,
 });
 socket.on('connect', function () {
-    console.log('Update read and like worker connect to server');
+    console.log('Update numbers worker connect to server');
 });
 
 await Database.connect();
@@ -109,5 +109,5 @@ const updateUserScore = async (even) => {
 // await updateUserLike(even);
 // await updateUserScore(even);
 await UpdateFeeds();
-socket.emit('Refresh user newsfeed', 'Online user refresh newsfeed.');
+// socket.emit('Refresh user newsfeed', 'Online user refresh newsfeed.');
 process.exit(0);

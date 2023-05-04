@@ -16,6 +16,7 @@ const calculatePostsScore = async (maxScore) => {
             (post.like_num * 0.8 + post.new_like_num - post.like_num) * 1.5 +
             (post.save_num * 0.8 + post.new_save_num - post.save_num) * 4 +
             (post.comment_num * 0.8 + post.new_comment_num - post.comment_num) * 6;
+
         // Time decay
         post.score =
             post.score * Math.exp(-0.03 * ((new Date() - post.dates.last_interact) / 600000));
@@ -33,14 +34,21 @@ const calculatePostsScore = async (maxScore) => {
     });
     return maxScore;
 };
+
 const topPosts = async (maxScore) => {
     try {
         const allPosts = await Post.queryAllPosts();
+        await Promise.all(
+            allPosts.map((post) => {
+                Cache.hset('posts', post._id, JSON.stringify(post));
+            })
+        );
         const postNormalized = allPosts.reduce((acc, post) => {
             acc.push({
                 post: JSON.stringify(post),
                 score: (post.score - 0) / (maxScore - 0),
             });
+
             return acc;
         }, []);
         await Cache.del('top-posts');
@@ -53,9 +61,14 @@ const topPosts = async (maxScore) => {
         console.log(e);
     }
 };
+
 const newPosts = async (limit) => {
     const posts = await Post.queryNewPosts(limit);
-    await Cache.set('new-posts', JSON.stringify(posts));
+    const originalPostsLength = await Cache.llen('new-posts');
+    for (let i = 0; i < posts.length; i++) {
+        await Cache.rpush('new-posts', JSON.stringify(posts[i]));
+    }
+    await Cache.ltrim('new-posts', originalPostsLength + 1, -1);
     console.log(`New posts cached at ${time}.`);
 };
 const setUserNewsfeed = async () => {
@@ -123,7 +136,7 @@ const UpdateFeeds = async () => {
         // 丟進Redis sorted set
         await topPosts(maxScore);
         // 抓最新的所有文章
-        // await newPosts(500);
+        await newPosts(500);
         // 丟進Redis sorted set
         await setUserNewsfeed();
     } catch (error) {

@@ -6,17 +6,31 @@ import { channel } from '../../util/queue.js';
 import { presignedUrl } from '../../util/s3.js';
 
 const getNewPosts = async (req, res) => {
-    let newPosts = await Cache.get('new-posts');
-    newPosts = JSON.parse(newPosts);
-    res.status(200).json({ data: newPosts });
+    const { paging } = req.query;
+    const pagePosts = await Cache.lrange('new-posts', (paging - 1) * 10, paging * 10 - 1);
+    const posts = pagePosts.map((post) => {
+        return JSON.parse(post);
+    });
+    const postsNum = await Cache.llen('new-posts');
+    const data = {
+        posts,
+        postsNum,
+    };
+    res.status(200).json({ data });
 };
 
 const getTopPosts = async (req, res) => {
-    const posts = await Cache.zrevrange('top-posts', 0, -1);
-    const results = posts.map((post) => {
+    const { paging } = req.query;
+    const pagePosts = await Cache.zrevrange('top-posts', (paging - 1) * 10, paging * 10 - 1);
+    const posts = pagePosts.map((post) => {
         return JSON.parse(post);
     });
-    res.status(200).json({ data: results });
+    const postsNum = await Cache.zcard('top-posts');
+    const data = {
+        posts,
+        postsNum,
+    };
+    res.status(200).json({ data });
 };
 
 const getContinentPosts = async (req, res) => {
@@ -153,6 +167,17 @@ const savePost = async (req, res) => {
     res.status(200).json({ message: `Saved post ${postId}` });
 };
 
+const getPosts = async (req, res) => {
+    const { ids } = req.query;
+    const postIds = ids.split(',');
+    let posts = [];
+    for (let i = 0; i < postIds.length; i++) {
+        const post = await Cache.hget('posts', postIds[i]);
+        posts.push(JSON.parse(post));
+    }
+    res.status(200).json({ data: posts });
+};
+
 const getPostNumbers = async (req, res) => {
     const postId = req.params.id;
     const readNum = await Cache.hget('posts:read-num', postId);
@@ -229,6 +254,7 @@ export {
     likePost,
     savePost,
     getPostNumbers,
+    getPosts,
     getPostUserStatus,
     writePost,
     getPresignUrl,
