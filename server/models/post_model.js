@@ -55,14 +55,26 @@ const queryPostsByIds = async (postIds) => {
     return posts;
 };
 
-const queryContinentPosts = async (continent, types) => {
+const countContinentPostsLength = async (continent, types) => {
+    const num = await Post.find({
+        'location.continent': continent,
+        type: { $in: types },
+    }).count();
+    return num;
+};
+
+const queryContinentPosts = async (continent, types, paging) => {
     const posts = await Post.find({
         'location.continent': continent,
         type: { $in: types },
-    }).populate({
-        path: 'authorId',
-        select: ['name', 'image'],
-    });
+    })
+        .sort({ 'dates.post_date': 'desc' })
+        .skip((paging - 1) * 10)
+        .limit(10)
+        .populate({
+            path: 'authorId',
+            select: ['name', 'image'],
+        });
     return posts;
 };
 
@@ -182,6 +194,7 @@ export default {
     queryNewPosts,
     queryPostWithComments,
     queryPostsByIds,
+    countContinentPostsLength,
     queryContinentPosts,
     updateReadNum,
     updateLikeNum,

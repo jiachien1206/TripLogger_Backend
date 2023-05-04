@@ -46,14 +46,15 @@ const getContinentPosts = async (req, res) => {
     };
     const allTypes = ['交通', '住宿', '景點', '證件', '其他', '恐怖故事', '省錢妙招'];
     const { continent } = req.params;
-    let { types } = req.query;
+    let { types, paging } = req.query;
     if (types === 'undefined' || types === '') {
         types = allTypes;
     } else {
         types = types.split(',');
     }
-    const posts = await Post.queryContinentPosts(map[continent], types);
-    res.status(200).json({ data: posts });
+    const postsNum = await Post.countContinentPostsLength(map[continent], types);
+    const posts = await Post.queryContinentPosts(map[continent], types, paging);
+    res.status(200).json({ data: { postsNum, posts } });
 };
 
 const getRelevantPosts = async (req, res) => {
