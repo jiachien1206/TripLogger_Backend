@@ -48,10 +48,12 @@ const queryPostWithComments = async (postId) => {
 };
 
 const queryPostsByIds = async (postIds) => {
-    const posts = await Post.find({ _id: { $in: postIds } }).populate({
-        path: 'authorId',
-        select: ['name', 'image'],
-    });
+    const posts = await Post.find({ _id: { $in: postIds } })
+        .sort({ 'dates.post_date': 'desc' })
+        .populate({
+            path: 'authorId',
+            select: ['name', 'image'],
+        });
     return posts;
 };
 
