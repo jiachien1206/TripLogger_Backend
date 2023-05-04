@@ -117,7 +117,7 @@ const getUserData = async (req, res) => {
 
 const editUserSetting = async (req, res) => {
     const userId = req.user.id;
-    const { name, email, image, location_pre, type_pre } = req.body;
+    const { name, image, location_pre, type_pre } = req.body;
     let locationPre = {};
     for (let i = 0; i < location_pre.length; i++) {
         locationPre[location_pre[i]] = Number((1.6 - i * 0.2).toFixed(1));
@@ -126,7 +126,7 @@ const editUserSetting = async (req, res) => {
     for (let i = 0; i < type_pre.length; i++) {
         typePre[type_pre[i]] = Number((1.6 - i * 0.2).toFixed(1));
     }
-    await User.updateUserSetting(userId, name, email, image, locationPre, typePre);
+    await User.updateUserSetting(userId, name, image, locationPre, typePre);
     return res.status(200).json({ message: `User ${userId} setting updated.` });
 };
 
