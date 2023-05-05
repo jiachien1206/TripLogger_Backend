@@ -23,18 +23,19 @@ const io = new Server(server, {
 });
 
 import emitNewsfeedsUpdate from './util/emitNewsfeedUpdate.js';
-let client = new Map();
 io.on('connection', (socket) => {
     console.log(socket.id, 'connected');
-    socket.on('Map user id and socket id', function (data) {
-        client.set(data.userId, socket.id);
-        console.log(client);
+    socket.on('Join user id room', function (data) {
+        socket.join(data.userId);
+        console.log(socket.rooms);
     });
     socket.on('Refresh user newsfeed', function (data) {
         emitNewsfeedsUpdate(io);
     });
+    socket.on('Read notification', function (data) {
+        io.to(data.userId).emit('Browser read notification', 'Read');
+    });
     socket.on('disconnect', (reason) => {
-        client.delete(socket.id);
         console.log('disconnet', socket.id);
     });
 });
@@ -71,9 +72,8 @@ server.listen(process.env.PORT, () => {
 });
 
 export const emitCommentMsg = (message, userId) => {
-    const socketId = client.get(userId);
-    if (socketId) {
-        io.to(socketId).emit('New notification', message);
-        console.log('send notification to socketid');
+    if (userId) {
+        io.to(userId).emit('New notification', message);
+        console.log('Send notification to user room');
     }
 };
