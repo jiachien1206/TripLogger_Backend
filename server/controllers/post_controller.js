@@ -290,11 +290,8 @@ const deletePost = async (req, res) => {
     if (!isExist) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
-    await Post.deletePost(userId, postId);
-    console.log(`Post ${postId} deleted.`);
-    await Post.esDeletePost(postId);
-    console.log(`Post ${postId} deleted from elasticsearch.`);
-    channel.sendToQueue('post-queue', Buffer.from(JSON.stringify(postId)));
+    const data = { postId, userId, event: 'delete' };
+    channel.sendToQueue('post-queue', Buffer.from(JSON.stringify(data)));
     console.log('Update newsfeed job send to queue.');
     res.status(200).json({ data: postId });
 };

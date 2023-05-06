@@ -19,6 +19,15 @@ await Queue.connect();
 const consumePost = async () => {
     await channel.consume('post-queue', async (data) => {
         try {
+            const d = JSON.parse(Buffer.from(data.content));
+            const { userId, postId, event } = d;
+            if (event === 'delete') {
+                console.log(event);
+                await Post.deletePost(userId, postId);
+                console.log(`Post ${postId} deleted.`);
+                await Post.esDeletePost(postId);
+                console.log(`Post ${postId} deleted from elasticsearch.`);
+            }
             await UpdateFeeds();
             socket.emit('Refresh user newsfeed', 'Online user refresh newsfeed.');
         } catch (error) {
