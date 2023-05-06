@@ -7,7 +7,10 @@ import { channel } from '../../util/queue.js';
 import { presignedUrl } from '../../util/s3.js';
 
 const getNewPosts = async (req, res) => {
-    const { paging } = req.query;
+    let { paging } = req.query;
+    if (!paging) {
+        paging = 1;
+    }
     const pagePosts = await Cache.lrange('new-posts', (paging - 1) * 10, paging * 10 - 1);
     const posts = pagePosts.map((post) => {
         return JSON.parse(post);
@@ -21,7 +24,10 @@ const getNewPosts = async (req, res) => {
 };
 
 const getTopPosts = async (req, res) => {
-    const { paging } = req.query;
+    let { paging } = req.query;
+    if (!paging) {
+        paging = 1;
+    }
     const pagePosts = await Cache.zrevrange('top-posts', (paging - 1) * 10, paging * 10 - 1);
     const posts = pagePosts.map((post) => {
         return JSON.parse(post);
@@ -47,6 +53,9 @@ const getContinentPosts = async (req, res) => {
     const allTypes = ['交通', '住宿', '景點', '證件', '其他', '恐怖故事', '省錢妙招'];
     const { continent } = req.params;
     let { types, paging } = req.query;
+    if (!paging) {
+        paging = 1;
+    }
     if (types === 'undefined' || types === '') {
         types = allTypes;
     } else {
