@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
-dotenv.config();
 import Search from '../models/search_model.js';
+dotenv.config();
 
 const searchKeyword = async (req, res) => {
     if (!req.query.keyword) {
@@ -10,17 +10,19 @@ const searchKeyword = async (req, res) => {
     const { keyword } = req.query;
     const results = await Search.searchPosts(keyword);
     const data = results.map((result) => {
+        const { id, title, content, main_image, type, continent, country, date } = result._source;
         return {
-            url: `${process.env.DOMAIN}/post/${result._source.id}`,
-            title: result._source.title,
-            content: result._source.content,
-            main_image: result._source.main_image,
-            type: result._source.type,
-            continent: result._source.continent,
-            country: result._source.country,
-            date: result._source.date,
+            url: `${process.env.DOMAIN}/post/${id}`,
+            title,
+            content,
+            main_image,
+            type,
+            continent,
+            country,
+            date,
         };
     });
+
     res.status(200).json({ data });
 };
 
