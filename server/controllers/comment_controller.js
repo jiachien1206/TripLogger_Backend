@@ -2,7 +2,7 @@ import Comment from '../models/comment_model.js';
 import Post from '../models/post_model.js';
 import Cache from '../../util/cache.js';
 import User from '../models/user_model.js';
-import { emitCommentMsg } from '../../app.js';
+import { emitCommentMsg } from '../../webSocket.js';
 
 const writeComment = async (req, res) => {
     const postId = req.params.id;
