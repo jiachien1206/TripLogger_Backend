@@ -6,12 +6,15 @@ import Country from '../schemas/country_schema.js';
 import Es from '../../util/elasticsearch.js';
 const { ES_INDEX } = process.env;
 
-const queryAllPosts = async () => {
-    const allPosts = await Post.find().populate({
-        path: 'authorId',
-        select: ['name', 'image'],
-    });
-    return allPosts;
+const queryPosts = async (limit) => {
+    const posts = await Post.find()
+        .sort({ score: 'desc' })
+        .populate({
+            path: 'authorId',
+            select: ['name', 'image'],
+        })
+        .limit(limit);
+    return posts;
 };
 
 const queryNewPosts = async (limit) => {
@@ -120,6 +123,7 @@ const createPost = async (userId, content) => {
 };
 
 const esCreatePost = async (postId, post) => {
+    // FIXME: try catch
     const date = new Date();
     const esPost = await Es.index({
         index: process.env.ES_INDEX,
@@ -192,7 +196,7 @@ const esDeletePost = async (postId) => {
 };
 
 export default {
-    queryAllPosts,
+    queryPosts,
     queryNewPosts,
     queryPostWithComments,
     queryPostsByIds,
