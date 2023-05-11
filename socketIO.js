@@ -2,7 +2,7 @@ import { Server } from 'socket.io';
 
 let io;
 
-export const socketio = (server) => {
+export const socketIO = (server) => {
     io = new Server(server, {
         cors: {
             origin: process.env.DOMAIN,

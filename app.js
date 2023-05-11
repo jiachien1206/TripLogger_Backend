@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import http from 'http';
-import { socketio } from './webSocket.js';
+import { socketIO } from './socketIO.js';
 import { Database } from './util/database.js';
 import { Queue } from './util/queue.js';
 import dotenv from 'dotenv';
@@ -19,7 +19,7 @@ const app = express();
 await Database.connect();
 await Queue.connect();
 const server = http.createServer(app);
-socketio(server);
+socketIO(server);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
