@@ -1,11 +1,12 @@
-import dotenv from 'dotenv';
-dotenv.config();
 import User from '../models/user_model.js';
 import Post from '../models/post_model.js';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Cache from '../../util/cache.js';
+import { cacheUserNewsfeed } from '../../util/cacheUserNewsfeed.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const signup = async (req, res) => {
     const { name, email, password, location_pre, type_pre } = req.body;
@@ -133,45 +134,8 @@ const editUserSetting = async (req, res) => {
 const generateUserNewsfeed = async (req, res) => {
     const userId = req.user.id;
     const user = await User.queryUser(userId);
-    const locationScoreSum = Object.values(user.location_score).reduce(
-        (acc, score) => acc + score,
-        0
-    );
-    const typeScoreSum = Object.values(user.type_score).reduce((acc, score) => acc + score, 0);
-
-    // 把每個類別的分數除以加總獲得比例*user自己預設的喜好排序
-    let locationScore = {};
-    for (const [key, value] of Object.entries(user.location_score)) {
-        const score = user.location_pre[key] * (value / locationScoreSum);
-        locationScore[key] = score;
-    }
-    let typeScore = {};
-    for (const [key, value] of Object.entries(user.type_score)) {
-        const score = user.type_pre[key] * (value / typeScoreSum);
-        typeScore[key] = score;
-    }
-
-    // 取出TOP500篇文章
-    const posts = await Cache.zrevrange('top-posts', 0, 499, 'WITHSCORES');
-    const newsFeed = [];
-    for (let i = 0; i < posts.length; i++) {
-        if (!(i % 2)) {
-            newsFeed.push({ post: JSON.parse(posts[i])._id });
-        } else {
-            const location = JSON.parse(posts[i - 1]).location.continent;
-            const type = JSON.parse(posts[i - 1]).type;
-            // TOP文章分數*user對該location分數*user對該category分數
-            newsFeed[Math.floor(i / 2)].score =
-                Number(posts[i]) * locationScore[location] * typeScore[type];
-        }
-    }
-
-    // 丟進Redis sorted set
-    await Cache.zadd(
-        `user:${userId}`,
-        ...newsFeed.map(({ post, score }) => [Math.round(score * 100000000) / 1000, post])
-    );
-    await Cache.expire(`user:${userId}`, 86400);
+    const topPosts = await Cache.zrevrange('top-posts', 0, -1, 'WITHSCORES');
+    await cacheUserNewsfeed(user, topPosts);
     res.status(200).json({ message: `User ${userId} newsfeed cached.` });
 };
 
