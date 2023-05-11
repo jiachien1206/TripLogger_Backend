@@ -1,33 +1,68 @@
 import dotenv from 'dotenv';
-dotenv.config({ path: '../.env' });
-
 import Cache from './cache.js';
 import Post from '../server/models/post_model.js';
 import User from '../server/models/user_model.js';
+import { roundTo } from '../util/roundToNum.js';
+import { AlgoCoefficients } from '../constants.js';
+dotenv.config({ path: '../.env' });
 
-const time = new Date();
+const cacheNewPosts = async () => {
+    const newPostsNumber = 500;
+    const posts = await Post.queryNewPosts(newPostsNumber);
+    const originalPostsLength = await Cache.llen('new-posts');
+    for (let i = 0; i < posts.length; i++) {
+        await Cache.rpush('new-posts', JSON.stringify(posts[i]));
+    }
+    await Cache.ltrim('new-posts', originalPostsLength, -1);
+    console.log(`New posts cached at ${new Date()}.`);
+};
 
-const calculatePostsScore = async (maxScore) => {
-    const allPosts = await Post.queryAllPosts();
-    allPosts.map((post) => {
-        // (舊的數量*0.8+新的數量)*boost
+const calculatePostsScore = async () => {
+    let maxScore = 0;
+    const maxCalculatePostsNumber = 10000;
+
+    const postBoostScore = (originalNum, newNum, coefficient) => {
+        (originalNum * AlgoCoefficients.lastWeight + newNum - originalNum) * coefficient;
+    };
+
+    const posts = await Post.queryPosts(maxCalculatePostsNumber);
+    posts.forEach((post) => {
+        const {
+            read_num,
+            like_num,
+            save_num,
+            comment_num,
+            new_read_num,
+            new_like_num,
+            new_save_num,
+            new_comment_num,
+        } = post;
+
+        // Calculate behavior numbers to post score
         post.score =
-            (post.read_num * 0.8 + post.new_read_num - post.read_num) * 1.05 +
-            (post.like_num * 0.8 + post.new_like_num - post.like_num) * 1.5 +
-            (post.save_num * 0.8 + post.new_save_num - post.save_num) * 4 +
-            (post.comment_num * 0.8 + post.new_comment_num - post.comment_num) * 6;
+            postBoostScore(read_num, new_read_num, AlgoCoefficients.readBoost) +
+            postBoostScore(like_num, new_like_num, AlgoCoefficients.likeBoost) +
+            postBoostScore(save_num, new_save_num, AlgoCoefficients.saveBoost) +
+            postBoostScore(comment_num, new_comment_num, AlgoCoefficients.commentBoost);
 
         // Time decay
-        post.score =
-            post.score * Math.exp(-0.03 * ((new Date() - post.dates.last_interact) / 600000));
+        post.score = roundTo(
+            post.score *
+                Math.exp(
+                    AlgoCoefficients.timeDecayCoefficient *
+                        ((new Date() - post.dates.last_interact) /
+                            AlgoCoefficients.newsfeedUpdateFrquency)
+                ),
+            5
+        );
 
-        // 新的數量轉移到舊數量
-        post.read_num = post.new_read_num;
-        post.like_num = post.new_like_num;
-        post.save_num = post.new_save_num;
-        post.comment_num = post.new_comment_num;
+        // Transfer new number to old number
+        post.read_num = new_read_num;
+        post.like_num = new_like_num;
+        post.save_num = new_save_num;
+        post.comment_num = new_comment_num;
         post.save();
-        // 找最大分數
+
         if (post.score > maxScore) {
             maxScore = post.score;
         }
@@ -35,112 +70,87 @@ const calculatePostsScore = async (maxScore) => {
     return maxScore;
 };
 
-const topPosts = async (maxScore) => {
-    try {
-        const allPosts = await Post.queryAllPosts();
-        await Promise.all(
-            allPosts.map((post) => {
-                Cache.hset('posts', post._id, JSON.stringify(post));
-            })
-        );
-        const postNormalized = allPosts.reduce((acc, post) => {
-            acc.push({
-                post: JSON.stringify(post),
-                score: (post.score - 0) / (maxScore - 0),
-            });
+const cacheTopPosts = async (maxScore) => {
+    const topPostsNumber = 500;
+    const allPosts = await Post.queryPosts(topPostsNumber);
 
-            return acc;
-        }, []);
-        await Cache.del('top-posts');
-        await Cache.zadd(
-            'top-posts',
-            ...postNormalized.map(({ post, score }) => [Math.round(score * 10000) / 10000, post])
-        );
-        console.log(`Top posts cached at ${time}`);
-    } catch (e) {
-        console.log(e);
-    }
+    // Cache each top posts
+    await Promise.all(allPosts.map((post) => Cache.hset('posts', post._id, JSON.stringify(post))));
+
+    const postNormalized = allPosts.map((p) => {
+        return { post: JSON.stringify(p), score: p.score / maxScore };
+    });
+    await Cache.del('top-posts');
+    await Cache.zadd(
+        'top-posts',
+        ...postNormalized.map(({ post, score }) => [roundTo(score, 5), post])
+    );
+    console.log(`Top posts cached at ${new Date()}`);
 };
 
-const newPosts = async (limit) => {
-    const posts = await Post.queryNewPosts(limit);
-    const originalPostsLength = await Cache.llen('new-posts');
-    for (let i = 0; i < posts.length; i++) {
-        await Cache.rpush('new-posts', JSON.stringify(posts[i]));
-    }
-    await Cache.ltrim('new-posts', originalPostsLength, -1);
-    console.log(`New posts cached at ${time}.`);
-};
-const setUserNewsfeed = async () => {
-    try {
-        const allUsers = await User.queryAllUsers();
+const cacheUsersNewsfeed = async () => {
+    const allUsers = await User.queryAllUsers();
 
-        // 取出TOP500篇文章
-        const posts = await Cache.zrevrange('top-posts', 0, 499, 'WITHSCORES');
+    const topPosts = await Cache.zrevrange('top-posts', 0, -1, 'WITHSCORES');
 
-        // 讀取每個user的資料
-        for (const user of allUsers) {
-            // 把每個類別的分數加總
-            const locationScoreSum = Object.values(user.location_score).reduce(
-                (acc, score) => acc + score,
-                0
-            );
-            const typeScoreSum = Object.values(user.type_score).reduce(
-                (acc, score) => acc + score,
-                0
-            );
+    const cacheUserNewsfeed = async (user) => {
+        // Caculate user location and type scores sum
+        const locationScoreSum = Object.values(user.location_score).reduce(
+            (acc, score) => acc + score,
+            0
+        );
+        const typeScoreSum = Object.values(user.type_score).reduce((acc, score) => acc + score, 0);
 
-            // 把每個類別的分數除以加總獲得比例*user自己預設的喜好排序
-            let locationScore = {};
-            for (const [key, value] of Object.entries(user.location_score)) {
-                const score = user.location_pre[key] * (value / locationScoreSum);
-                locationScore[key] = score;
+        // Preference setting times each category scores divided by category total score
+        const caculateScore = (preference, score, sum) => {
+            return Object.entries(score).reduce((acc, [key, value]) => {
+                acc[key] = preference[key] * (value / sum);
+                return acc;
+            }, {});
+        };
+
+        const locationScore = caculateScore(
+            user.location_pre,
+            user.location_score,
+            locationScoreSum
+        );
+        const typeScore = caculateScore(user.type_pre, user.type_score, typeScoreSum);
+
+        // Cache post id in newsfeed
+        const newsFeed = [];
+        for (let i = 0; i < topPosts.length; i++) {
+            if (!(i % 2)) {
+                newsFeed.push({ post: JSON.parse(topPosts[i])._id });
+            } else {
+                const location = JSON.parse(topPosts[i - 1]).location.continent;
+                const type = JSON.parse(topPosts[i - 1]).type;
+                const postScore = Number(topPosts[i]);
+
+                newsFeed[Math.floor(i / 2)].score =
+                    postScore * locationScore[location] * typeScore[type];
             }
-
-            let typeScore = {};
-            for (const [key, value] of Object.entries(user.type_score)) {
-                const score = user.type_pre[key] * (value / typeScoreSum);
-                typeScore[key] = score;
-            }
-            const newsFeed = [];
-            for (let i = 0; i < posts.length; i++) {
-                if (!(i % 2)) {
-                    newsFeed.push({ post: JSON.parse(posts[i])._id });
-                } else {
-                    const location = JSON.parse(posts[i - 1]).location.continent;
-                    const type = JSON.parse(posts[i - 1]).type;
-                    // TOP文章分數*user對該location分數*user對該category分數
-                    newsFeed[Math.floor(i / 2)].score =
-                        Number(posts[i]) * locationScore[location] * typeScore[type];
-                }
-            }
-            // 丟進Redis sorted set
-            const userId = user._id;
-            await Cache.unlink([`user:${userId}`]);
-            await Cache.zadd(
-                `user:${userId}`,
-                ...newsFeed.map(({ post, score }) => [Math.round(score * 100000000) / 1000, post])
-            );
-            await Cache.expire(`user:${userId}`, 86400);
         }
-        console.log(`Users newsfeed cached at ${time}`);
-    } catch (error) {
-        console.log(error);
-    }
+        const userId = user._id;
+        await Cache.del([`user:${userId}`]);
+        await Cache.zadd(
+            `user:${userId}`,
+            ...newsFeed.map(({ post, score }) => [roundTo(score, 8), post])
+        );
+        await Cache.expire(`user:${userId}`, 86400);
+    };
+
+    await Promise.all(allUsers.map(cacheUserNewsfeed));
+    console.log(`Users newsfeed cached at ${new Date()}`);
 };
 
 const UpdateFeeds = async () => {
     try {
-        // 抓最新的所有文章
-        await newPosts(500);
-        // 更新每篇文章的分數
-        let maxScore = await calculatePostsScore(0);
-        // 丟進Redis sorted set
-        await topPosts(maxScore);
-        // 丟進Redis sorted set
-        await setUserNewsfeed();
+        await cacheNewPosts();
+        const maxScore = await calculatePostsScore();
+        await cacheTopPosts(maxScore);
+        await cacheUsersNewsfeed();
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 };
 

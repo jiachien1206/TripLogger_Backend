@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
-dotenv.config();
 import mongoose from 'mongoose';
+dotenv.config();
 
 const Database = {
     connect: async () => {
@@ -8,7 +8,7 @@ const Database = {
             await mongoose.connect(
                 `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PWD}@cluster0.t6hzr4h.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
             );
-            console.log('Database is connected.');
+            console.log('Connect to database.');
         } catch (error) {
             console.log(error);
         }
