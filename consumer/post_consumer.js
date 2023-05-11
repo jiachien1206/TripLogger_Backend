@@ -1,32 +1,36 @@
 import dotenv from 'dotenv';
-dotenv.config({ path: '../.env' });
 import { Database } from '../util/database.js';
 import { Queue, channel } from '../util/queue.js';
 import Post from '../server/models/post_model.js';
-import Country from '../server/models/country_model.js';
 import { UpdateFeeds } from '../util/newsfeedGenerator.js';
 import io from 'socket.io-client';
 
-const socket = io.connect(process.env.SERVER, {
-    reconnection: true,
-});
-socket.on('connect', function () {
-    console.log('Post consumer connect to server');
-});
-await Database.connect();
-await Queue.connect();
+dotenv.config({ path: '../.env' });
 
-const consumePost = async () => {
+const connectSocket = () => {
+    const socket = io.connect(process.env.SERVER, {
+        reconnection: true,
+    });
+
+    socket.on('connect', function () {
+        console.log('Post consumer connect to server');
+    });
+    return socket;
+};
+
+const deletePost = async (userId, postId) => {
+    await Post.deletePost(userId, postId);
+    console.log(`Post ${postId} deleted.`);
+    await Post.esDeletePost(postId);
+    console.log(`Post ${postId} deleted from elasticsearch.`);
+};
+
+const consumePost = async (socket) => {
     await channel.consume('post-queue', async (data) => {
         try {
-            const d = JSON.parse(Buffer.from(data.content));
-            const { userId, postId, event } = d;
+            const { userId, postId, event } = JSON.parse(Buffer.from(data.content));
             if (event === 'delete') {
-                console.log(event);
-                await Post.deletePost(userId, postId);
-                console.log(`Post ${postId} deleted.`);
-                await Post.esDeletePost(postId);
-                console.log(`Post ${postId} deleted from elasticsearch.`);
+                await deletePost(userId, postId);
             }
             await UpdateFeeds();
             socket.emit('Refresh user newsfeed', 'Online user refresh newsfeed.');
@@ -38,4 +42,14 @@ const consumePost = async () => {
     });
 };
 
-await consumePost();
+const startConsumer = async () => {
+    try {
+        await Database.connect();
+        await Queue.connect();
+        const socket = connectSocket();
+        await consumePost(socket);
+    } catch (e) {
+        console.error(e);
+    }
+};
+startConsumer();
