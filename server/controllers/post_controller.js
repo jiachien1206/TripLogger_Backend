@@ -2,15 +2,12 @@ import Post from '../models/post_model.js';
 import User from '../models/user_model.js';
 import Country from '../models/country_model.js';
 import Cache from '../../util/cache.js';
-
+import { Types, ContinentMap } from '../../constants.js';
 import { channel } from '../../util/queue.js';
-import { presignedUrl } from '../../util/s3.js';
+import { presignedUrl } from '../../util/s3.js'; // get
 
 const getNewPosts = async (req, res) => {
-    let { paging } = req.query;
-    if (!paging) {
-        paging = 1;
-    }
+    const paging = Number(req.query.paging) || 1;
     const pagePosts = await Cache.lrange('new-posts', (paging - 1) * 10, paging * 10 - 1);
     const posts = pagePosts.map((post) => {
         return JSON.parse(post);
@@ -24,10 +21,7 @@ const getNewPosts = async (req, res) => {
 };
 
 const getTopPosts = async (req, res) => {
-    let { paging } = req.query;
-    if (!paging) {
-        paging = 1;
-    }
+    const paging = Number(req.query.paging) || 1;
     const pagePosts = await Cache.zrevrange('top-posts', (paging - 1) * 10, paging * 10 - 1);
     const posts = pagePosts.map((post) => {
         return JSON.parse(post);
@@ -41,28 +35,14 @@ const getTopPosts = async (req, res) => {
 };
 
 const getContinentPosts = async (req, res) => {
-    const map = {
-        asia: '亞洲',
-        europe: '歐洲',
-        'north-america': '北美洲',
-        oceania: '大洋洲',
-        'south-america': '南美洲',
-        africa: '非洲',
-        antarctica: '南極洲',
-    };
-    const allTypes = ['交通', '住宿', '景點', '證件', '其他', '恐怖故事', '省錢妙招'];
     const { continent } = req.params;
-    let { types, paging } = req.query;
-    if (!paging) {
-        paging = 1;
-    }
-    if (types === 'undefined' || types === '') {
-        types = allTypes;
-    } else {
-        types = types.split(',');
-    }
-    const postsNum = await Post.countContinentPostsLength(map[continent], types);
-    const posts = await Post.queryContinentPosts(map[continent], types, paging);
+
+    const paging = Number(req.query.paging) || 1;
+    let types = req.query.types || Types;
+    types = types.split(',');
+
+    const postsNum = await Post.countContinentPostsLength(ContinentMap[continent], types);
+    const posts = await Post.queryContinentPosts(ContinentMap[continent], types, paging);
     res.status(200).json({ data: { postsNum, posts } });
 };
 
@@ -180,6 +160,7 @@ const savePost = async (req, res) => {
 
 const getPosts = async (req, res) => {
     const { ids } = req.query;
+    // FIXME: ids有錯？？？？
     const postIds = ids.split(',');
     let posts = [];
     for (let i = 0; i < postIds.length; i++) {
@@ -191,6 +172,7 @@ const getPosts = async (req, res) => {
 
 const getPostNumbers = async (req, res) => {
     const postId = req.params.id;
+    // FIXME: 不用await用promise all
     const readNum = await Cache.hget('posts:read-num', postId);
     const likeNum = await Cache.hget('posts:like-num', postId);
     const saveNum = await Cache.hget('posts:save-num', postId);
@@ -207,6 +189,7 @@ const getPostNumbers = async (req, res) => {
 
 const getPostUserStatus = async (req, res) => {
     const userId = req.user.id;
+    // FIXME: promise all
     const savedPosts = await User.queryUserSavedPosts(userId);
     const likedPosts = await User.queryUserLikedPosts(userId);
     res.status(200).json({ data: { saved_posts: savedPosts, liked_posts: likedPosts } });
@@ -247,11 +230,11 @@ const writePost = async (req, res) => {
     await Cache.lpush('new-posts', JSON.stringify(post));
     await Cache.rpop('new-posts');
     const esPostId = await Post.esCreatePost(postId, content);
-    if (esPostId) {
-        console.log(`New post ${esPostId} saved to elasticsearch.`);
-    } else {
-        return res.status(500).json({ error: `Elasticsearch created ${postId} failed.` });
-    }
+    // if (!esPostId) {
+    //     return res.status(500).json({ error: `Elasticsearch created ${postId} failed.` });
+
+    // }
+    console.log(`New post ${esPostId} saved to elasticsearch.`);
     channel.sendToQueue('post-queue', Buffer.from(JSON.stringify(postId)));
     console.log('Update newsfeed job send to queue.');
     res.status(200).json({ data: postId });
