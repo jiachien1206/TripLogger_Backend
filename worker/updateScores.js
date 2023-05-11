@@ -32,7 +32,6 @@ const updateUserLike = async (isEvenTime) => {
             await Cache.del(user);
         })
     );
-
     console.log(`Updated users' liked posts.`);
 };
 
@@ -68,10 +67,10 @@ socket.on('connect', async function () {
     console.log('Update numbers worker connect to server');
     try {
         const updateTypes = ['Like', 'Save', 'Read', 'Comment'];
-        let updateBehaviorNums = updateTypes.map((type) =>
+        const updateBehaviorNums = updateTypes.map((type) =>
             updatePostNumbers(type.toLowerCase(), Post[`update${type}Num`])
         );
-        let updateUserLikeAndScore = [updateUserLike(isEvenTime), updateUserScore(isEvenTime)];
+        const updateUserLikeAndScore = [updateUserLike(isEvenTime), updateUserScore(isEvenTime)];
 
         await Promise.all([...updateBehaviorNums, ...updateUserLikeAndScore]);
         await UpdateFeeds();
