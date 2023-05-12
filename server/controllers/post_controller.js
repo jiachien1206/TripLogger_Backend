@@ -137,11 +137,13 @@ const savePost = async (req, res) => {
 
 const getPosts = async (req, res) => {
     const { ids } = req.query;
-    // FIXME: ids有錯？？？？
     const postIds = ids.split(',');
     let posts = [];
     for (let i = 0; i < postIds.length; i++) {
         const post = await Cache.hget('posts', postIds[i]);
+        if (!post) {
+            return res.status(400).json({ error: "Can't find these posts." });
+        }
         posts.push(JSON.parse(post));
     }
     res.status(200).json({ data: posts });
