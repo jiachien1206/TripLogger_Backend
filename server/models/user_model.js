@@ -20,7 +20,7 @@ const getUser = async (email) => {
 };
 
 const queryUser = async (userId) => {
-    const user = await User.findById(userId);
+    const [user] = await User.find({ _id: userId }, { notification: 0 });
     return user;
 };
 
