@@ -4,7 +4,7 @@ import Country from '../models/country_model.js';
 import Cache from '../../util/cache.js';
 import { Types, ContinentMap, PageNumber, Behaviors } from '../../constants.js';
 import { channel } from '../../util/queue.js';
-import { presignedUrl } from '../../util/s3.js'; // get
+import { createPresignedUrl } from '../../util/s3.js'; // get
 import { isEvenTime } from '../../util/util.js';
 import { GuestBehaviorProcessor, MemberBehaviorProcessor } from '../../util/behaviorProcessor.js';
 
@@ -169,7 +169,7 @@ const getPostUserStatus = async (req, res) => {
 };
 
 const getPresignUrl = async (req, res) => {
-    const url = await presignedUrl();
+    const url = await createPresignedUrl();
     res.status(200).json({ data: url });
 };
 

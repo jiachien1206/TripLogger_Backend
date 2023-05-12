@@ -9,7 +9,7 @@ const createPresignedUrlWithClient = async (key) => {
     return getSignedUrl(client, command, { expiresIn: 3600 });
 };
 
-export const presignedUrl = async () => {
+export const createPresignedUrl = async () => {
     const key = Date.now() + '-' + Math.round(Math.random() * 1e9) + '.jpg';
     return await createPresignedUrlWithClient(key);
 };
