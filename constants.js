@@ -30,3 +30,5 @@ export const BehaviorScore = {
 };
 
 export const PageNumber = 10;
+
+export const Behaviors = ['read', 'like', 'save', 'comment'];

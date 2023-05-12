@@ -2,7 +2,7 @@ import Post from '../models/post_model.js';
 import User from '../models/user_model.js';
 import Country from '../models/country_model.js';
 import Cache from '../../util/cache.js';
-import { Types, ContinentMap, PageNumber } from '../../constants.js';
+import { Types, ContinentMap, PageNumber, Behaviors } from '../../constants.js';
 import { channel } from '../../util/queue.js';
 import { presignedUrl } from '../../util/s3.js'; // get
 import { isEvenTime } from '../../util/util.js';
@@ -151,24 +151,18 @@ const getPosts = async (req, res) => {
 
 const getPostNumbers = async (req, res) => {
     const postId = req.params.id;
-    // FIXME: 不用await用promise all
-    const readNum = await Cache.hget('posts:read-num', postId);
-    const likeNum = await Cache.hget('posts:like-num', postId);
-    const saveNum = await Cache.hget('posts:save-num', postId);
-    const commentNum = await Cache.hget('posts:comment-num', postId);
-    res.status(200).json({
-        data: {
-            read_num: Number(readNum),
-            like_num: Number(likeNum),
-            save_num: Number(saveNum),
-            comment_num: Number(commentNum),
-        },
-    });
+
+    const data = {};
+    for (const behavior of Behaviors) {
+        const num = await Cache.hget(`posts:${behavior}-num`, postId);
+        data[`${behavior}_num`] = Number(num);
+    }
+
+    res.status(200).json({ data });
 };
 
 const getPostUserStatus = async (req, res) => {
     const userId = req.user.id;
-    // FIXME: promise all
     const savedPosts = await User.queryUserSavedPosts(userId);
     const likedPosts = await User.queryUserLikedPosts(userId);
     res.status(200).json({ data: { saved_posts: savedPosts, liked_posts: likedPosts } });
