@@ -5,7 +5,7 @@ import Post from '../server/models/post_model.js';
 import User from '../server/models/user_model.js';
 import { UpdateFeeds } from '../util/newsfeedGenerator.js';
 import io from 'socket.io-client';
-import isEvenTime from '../util/evenTime.js';
+import { isEvenTime } from '../util/util.js';
 import { Locations } from '../constants.js';
 dotenv.config({ path: '../.env' });
 

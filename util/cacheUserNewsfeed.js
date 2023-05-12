@@ -1,4 +1,4 @@
-import { roundTo } from './roundToNum.js';
+import { roundTo } from './util.js';
 import Cache from './cache.js';
 
 export const cacheUserNewsfeed = async (user, topPosts) => {

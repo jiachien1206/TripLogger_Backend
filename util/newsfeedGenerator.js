@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import Cache from './cache.js';
 import Post from '../server/models/post_model.js';
 import User from '../server/models/user_model.js';
-import { roundTo } from '../util/roundToNum.js';
+import { roundTo } from './util.js';
 import { AlgoCoefficients } from '../constants.js';
 import { cacheUserNewsfeed } from '../util/cacheUserNewsfeed.js';
 dotenv.config({ path: '../.env' });
