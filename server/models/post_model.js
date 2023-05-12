@@ -68,14 +68,14 @@ const countContinentPostsLength = async (continent, types) => {
     return num;
 };
 
-const queryContinentPosts = async (continent, types, paging) => {
+const queryContinentPosts = async (continent, types, paging, pageNumber) => {
     const posts = await Post.find({
         'location.continent': continent,
         type: { $in: types },
     })
         .sort({ 'dates.post_date': 'desc' })
-        .skip((paging - 1) * 10)
-        .limit(10)
+        .skip((paging - 1) * pageNumber)
+        .limit(pageNumber)
         .populate({
             path: 'authorId',
             select: ['name', 'image'],

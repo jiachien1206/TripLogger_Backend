@@ -28,3 +28,5 @@ export const BehaviorScore = {
     save: 10,
     comment: 20,
 };
+
+export const PageNumber = 10;

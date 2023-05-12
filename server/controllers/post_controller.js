@@ -2,7 +2,7 @@ import Post from '../models/post_model.js';
 import User from '../models/user_model.js';
 import Country from '../models/country_model.js';
 import Cache from '../../util/cache.js';
-import { Types, ContinentMap } from '../../constants.js';
+import { Types, ContinentMap, PageNumber } from '../../constants.js';
 import { channel } from '../../util/queue.js';
 import { presignedUrl } from '../../util/s3.js'; // get
 import { isEvenTime } from '../../util/util.js';
@@ -10,7 +10,11 @@ import { GuestBehaviorProcessor, MemberBehaviorProcessor } from '../../util/beha
 
 const getNewPosts = async (req, res) => {
     const paging = Number(req.query.paging) || 1;
-    const pagePosts = await Cache.lrange('new-posts', (paging - 1) * 10, paging * 10 - 1);
+    const pagePosts = await Cache.lrange(
+        'new-posts',
+        (paging - 1) * PageNumber,
+        paging * PageNumber - 1
+    );
     const posts = pagePosts.map((post) => {
         return JSON.parse(post);
     });
@@ -24,7 +28,11 @@ const getNewPosts = async (req, res) => {
 
 const getTopPosts = async (req, res) => {
     const paging = Number(req.query.paging) || 1;
-    const pagePosts = await Cache.zrevrange('top-posts', (paging - 1) * 10, paging * 10 - 1);
+    const pagePosts = await Cache.zrevrange(
+        'top-posts',
+        (paging - 1) * PageNumber,
+        paging * PageNumber - 1
+    );
     const posts = pagePosts.map((post) => {
         return JSON.parse(post);
     });
@@ -44,7 +52,12 @@ const getContinentPosts = async (req, res) => {
     types = types.split(',');
 
     const postsNum = await Post.countContinentPostsLength(ContinentMap[continent], types);
-    const posts = await Post.queryContinentPosts(ContinentMap[continent], types, paging);
+    const posts = await Post.queryContinentPosts(
+        ContinentMap[continent],
+        types,
+        paging,
+        PageNumber
+    );
     res.status(200).json({ data: { postsNum, posts } });
 };
 
