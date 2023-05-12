@@ -16,7 +16,7 @@ const updatePostNumbers = async (type, updateFunction) => {
 };
 
 const updateUserLike = async (isEvenTime) => {
-    const users = isEvenTime
+    const users = isEvenTime()
         ? await Cache.keys('user-like-o-*')
         : await Cache.keys('user-like-e-*');
 
@@ -24,6 +24,7 @@ const updateUserLike = async (isEvenTime) => {
         users.map(async (user) => {
             const posts = await Cache.hgetall(user);
             const userId = user.slice(12);
+
             await Promise.all(
                 Object.entries(posts).map(([key, value]) => {
                     return User.updateUserLiked(userId, key, Number(value));
@@ -36,7 +37,7 @@ const updateUserLike = async (isEvenTime) => {
 };
 
 const updateUserScore = async (isEvenTime) => {
-    const users = isEvenTime
+    const users = isEvenTime()
         ? await Cache.keys('user-scores-o-*')
         : await Cache.keys('user-scores-e-*');
 
@@ -45,14 +46,16 @@ const updateUserScore = async (isEvenTime) => {
             const scores = await Cache.hgetall(user);
             const userId = user.slice(14);
 
-            for (const [key, value] of Object.entries(scores)) {
-                if (Locations.includes(key)) {
-                    await User.addUserScore(userId, 'location', key, value);
-                } else {
-                    await User.addUserScore(userId, 'type', key, value);
-                }
-            }
-            Cache.del(user);
+            await Promise.all(
+                Object.entries(scores).map(async ([key, value]) => {
+                    if (Locations.includes(key)) {
+                        await User.addUserScore(userId, 'location', key, value);
+                    } else {
+                        await User.addUserScore(userId, 'type', key, value);
+                    }
+                })
+            );
+            await Cache.del(user);
         })
     );
     console.log(`Users read and like score updated.`);

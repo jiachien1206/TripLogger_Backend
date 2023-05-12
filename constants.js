@@ -21,3 +21,10 @@ export const AlgoCoefficients = {
     timeDecayCoefficient: -0.02,
     newsfeedUpdateFrquency: 600000,
 };
+
+export const BehaviorScore = {
+    read: 1,
+    like: 5,
+    save: 10,
+    comment: 20,
+};

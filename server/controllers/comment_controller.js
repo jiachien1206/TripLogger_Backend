@@ -1,8 +1,8 @@
 import Comment from '../models/comment_model.js';
 import Post from '../models/post_model.js';
-import Cache from '../../util/cache.js';
 import User from '../models/user_model.js';
 import { emitCommentMsg } from '../../socketIO.js';
+import { MemberBehaviorProcessor } from '../../util/behaviorProcessor.js';
 
 const writeComment = async (req, res) => {
     const postId = req.params.id;
@@ -17,19 +17,8 @@ const writeComment = async (req, res) => {
     const date = new Date();
     const commentId = await Comment.addComment(comment);
     await Post.addCommentToPost(postId, commentId, date);
-    await Cache.hincrby('posts:comment-num', postId, 1);
-    const currentMin = new Date().getMinutes();
-    if (
-        (0 <= currentMin && currentMin < 10) ||
-        (20 <= currentMin && currentMin < 30) ||
-        (40 <= currentMin && currentMin < 50)
-    ) {
-        await Cache.hincrby(`user-scores-e-${userId}`, `${location}`, 20);
-        await Cache.hincrby(`user-scores-e-${userId}`, `${type}`, 20);
-    } else {
-        await Cache.hincrby(`user-scores-o-${userId}`, `${location}`, 20);
-        await Cache.hincrby(`user-scores-o-${userId}`, `${type}`, 20);
-    }
+    const processor = new MemberBehaviorProcessor(postId, 'comment', userId, location, type, true);
+    await processor.processNumberScore();
 
     if (userId !== authorId._id) {
         await User.addNotification(

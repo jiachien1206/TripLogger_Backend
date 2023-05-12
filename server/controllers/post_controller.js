@@ -5,6 +5,8 @@ import Cache from '../../util/cache.js';
 import { Types, ContinentMap } from '../../constants.js';
 import { channel } from '../../util/queue.js';
 import { presignedUrl } from '../../util/s3.js'; // get
+import { isEvenTime } from '../../util/util.js';
+import { GuestBehaviorProcessor, MemberBehaviorProcessor } from '../../util/behaviorProcessor.js';
 
 const getNewPosts = async (req, res) => {
     const paging = Number(req.query.paging) || 1;
@@ -70,91 +72,53 @@ const getPost = async (req, res) => {
 const readPost = async (req, res) => {
     const postId = req.params.id;
     const { userId, location, type } = req.body;
-    await Cache.hincrby('posts:read-num', postId, 1);
-    const currentMin = new Date().getMinutes();
-    if (
-        (0 <= currentMin && currentMin < 10) ||
-        (20 <= currentMin && currentMin < 30) ||
-        (40 <= currentMin && currentMin < 50)
-    ) {
-        if (userId) {
-            await Cache.hincrby(`user-scores-e-${userId}`, `${location}`, 1);
-            await Cache.hincrby(`user-scores-e-${userId}`, `${type}`, 1);
-        }
+
+    if (!userId) {
+        const processor = new GuestBehaviorProcessor(postId, 'read');
+        await processor.addNum(1);
     } else {
-        if (userId) {
-            await Cache.hincrby(`user-scores-o-${userId}`, `${location}`, 1);
-            await Cache.hincrby(`user-scores-o-${userId}`, `${type}`, 1);
-        }
+        const processor = new MemberBehaviorProcessor(postId, 'read', userId, location, type, true);
+        await processor.processNumberScore();
     }
+
     res.status(200).json({ message: `Read post ${postId}` });
 };
 
 const likePost = async (req, res) => {
     const postId = req.params.id;
     const userId = req.user.id;
-    const { location, type, like } = req.body;
-    const currentMin = new Date().getMinutes();
-    if (
-        (0 <= currentMin && currentMin < 10) ||
-        (20 <= currentMin && currentMin < 30) ||
-        (40 <= currentMin && currentMin < 50)
-    ) {
-        // 偶數時間
-        if (like) {
-            await Cache.hincrby('posts:like-num', postId, 1);
-            await Cache.hset(`user-like-e-${userId}`, { [postId]: 1 });
-            await Cache.hincrby(`user-scores-e-${userId}`, `${location}`, 5);
-            await Cache.hincrby(`user-scores-e-${userId}`, `${type}`, 5);
-        } else {
-            // 取消like
-            await Cache.hincrby('posts:like-num', postId, -1);
-            await Cache.hset(`user-like-e-${userId}`, { [postId]: 0 });
-            await Cache.hincrby(`user-scores-e-${userId}`, `${location}`, -5);
-            await Cache.hincrby(`user-scores-e-${userId}`, `${type}`, -5);
-        }
-        // 奇數時間
-    } else {
-        if (like) {
-            await Cache.hincrby('posts:like-num', postId, 1);
-            await Cache.hset(`user-like-o-${userId}`, { [postId]: 1 });
-            await Cache.hincrby(`user-scores-o-${userId}`, `${location}`, 5);
-            await Cache.hincrby(`user-scores-o-${userId}`, `${type}`, 5);
-        } else {
-            // 取消like
-            await Cache.hincrby('posts:like-num', postId, -1);
-            await Cache.hset(`user-like-o-${userId}`, { [postId]: 0 });
-            await Cache.hincrby(`user-scores-o-${userId}`, `${location}`, -5);
-            await Cache.hincrby(`user-scores-o-${userId}`, `${type}`, -5);
-        }
-    }
+    const { location, type, isPositive } = req.body;
+
+    const processor = new MemberBehaviorProcessor(
+        postId,
+        'like',
+        userId,
+        location,
+        type,
+        isPositive
+    );
+    await processor.processNumberScore();
+    const time = isEvenTime() ? 'e' : 'o';
+    await Cache.hset(`user-like-${time}-${userId}`, { [postId]: isPositive ? 1 : 0 });
+
     res.status(200).json({ message: `Liked post ${postId}` });
 };
 
 const savePost = async (req, res) => {
     const postId = req.params.id;
     const userId = req.user.id;
-    const { location, type, save } = req.body;
-    await User.updateUserSaved(userId, postId, save);
-    const currentMin = new Date().getMinutes();
-    let num = 1;
-    let score = 10;
-    if (!save) {
-        num *= -1;
-        score *= -1;
-    }
-    await Cache.hincrby('posts:save-num', postId, num);
-    if (
-        (0 <= currentMin && currentMin < 10) ||
-        (20 <= currentMin && currentMin < 30) ||
-        (40 <= currentMin && currentMin < 50)
-    ) {
-        await Cache.hincrby(`user-scores-e-${userId}`, `${location}`, score);
-        await Cache.hincrby(`user-scores-e-${userId}`, `${type}`, score);
-    } else {
-        await Cache.hincrby(`user-scores-o-${userId}`, `${location}`, score);
-        await Cache.hincrby(`user-scores-o-${userId}`, `${type}`, score);
-    }
+    const { location, type, isPositive } = req.body;
+    await User.updateUserSaved(userId, postId, isPositive);
+    const processor = new MemberBehaviorProcessor(
+        postId,
+        'save',
+        userId,
+        location,
+        type,
+        isPositive
+    );
+    await processor.processNumberScore();
+
     res.status(200).json({ message: `Saved post ${postId}` });
 };
 
