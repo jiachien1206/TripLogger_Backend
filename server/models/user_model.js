@@ -1,13 +1,11 @@
 import User from '../schemas/user_schema.js';
 
 const userExist = async (email) => {
-    const isUser = await User.exists({ email: email });
-    return isUser;
+    return await User.exists({ email: email });
 };
 
 const signup = async (name, email, password, location_pre, type_pre, provider) => {
-    const user = await User.create({ name, email, password, location_pre, type_pre, provider });
-    return user;
+    return await User.create({ name, email, password, location_pre, type_pre, provider });
 };
 
 const logout = async (userId, logoutTime) => {
@@ -25,8 +23,7 @@ const queryUser = async (userId) => {
 };
 
 const queryAllUsers = async () => {
-    const allUsers = await User.find();
-    return allUsers;
+    return await User.find();
 };
 
 const queryUserPosts = async (userId, limit) => {
@@ -71,34 +68,23 @@ const updateUserLiked = async (userId, postId, like) => {
     } else {
         await User.updateOne({ _id: userId }, { $pull: { liked_posts: postId } });
     }
-    return true;
 };
 
 const queryUserSavedPosts = async (userId) => {
-    try {
-        const posts = await User.find({ _id: userId }).select('saved_posts');
-        if (posts.length === 0) {
-            return [];
-        } else {
-            return posts[0].saved_posts;
-        }
-    } catch (error) {
-        console.log(error);
+    const posts = await User.find({ _id: userId }).select('saved_posts');
+    if (posts.length === 0) {
         return [];
+    } else {
+        return posts[0].saved_posts;
     }
 };
 
 const queryUserLikedPosts = async (userId) => {
-    try {
-        const posts = await User.find({ _id: userId }).select('liked_posts');
-        if (posts.length === 0) {
-            return [];
-        } else {
-            return posts[0].liked_posts;
-        }
-    } catch (error) {
-        console.log(error);
+    const posts = await User.find({ _id: userId }).select('liked_posts');
+    if (posts.length === 0) {
         return [];
+    } else {
+        return posts[0].liked_posts;
     }
 };
 
