@@ -23,6 +23,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors({ origin: process.env.DOMAIN }));
 
+app.get('/check', (req, res) => {
+    res.status(200).send();
+});
 app.use('/api', posts_route, map_route, profile_route, comment_route, search_route);
 
 // Error handling
