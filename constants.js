@@ -22,6 +22,9 @@ export const AlgoCoefficients = {
     newsfeedUpdateFrquency: 600000,
 };
 
+export const MaxUserPreferenceScore = 1.6;
+export const UserPreferenceScoreDiff = 0.2;
+
 export const BehaviorScore = {
     read: 1,
     like: 5,

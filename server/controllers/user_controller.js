@@ -4,7 +4,14 @@ import validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Cache from '../../util/cache.js';
+import { signJwt } from '../../util/util.js';
 import { cacheUserNewsfeed } from '../../util/cacheUserNewsfeed.js';
+import {
+    Locations,
+    Types,
+    MaxUserPreferenceScore,
+    UserPreferenceScoreDiff,
+} from '../../constants.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -21,31 +28,30 @@ const signup = async (req, res) => {
     if (isUser) {
         return res.status(400).json({ error: 'User already exists.' });
     }
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await bcrypt.hash(password, Number(process.env.PWD_SALT_ROUNDS));
+
     let locationPre = {};
-    for (let i = 0; i < 7; i++) {
-        locationPre[location_pre[i]] = Number((1.6 - i * 0.2).toFixed(1));
+    for (let i = 0; i < Locations.length; i++) {
+        locationPre[location_pre[i]] = Number(
+            (MaxUserPreferenceScore - i * UserPreferenceScoreDiff).toFixed(1)
+        );
     }
     let typePre = {};
-    for (let i = 0; i < 7; i++) {
-        typePre[type_pre[i]] = Number((1.6 - i * 0.2).toFixed(1));
+    for (let i = 0; i < Types.length; i++) {
+        typePre[type_pre[i]] = Number(
+            (MaxUserPreferenceScore - i * UserPreferenceScoreDiff).toFixed(1)
+        );
     }
+
     const user = await User.signup(name, email, hash, locationPre, typePre, 'native');
-    const accessToken = jwt.sign(
-        {
-            provider: user.provider,
-            name: user.name,
-            email: user.email,
-            id: user._id,
-        },
-        process.env.TOKEN_SECRET
-    );
+    const accessToken = signJwt(user.provider, user.name, user.email, user._id);
     console.log(`New user ${user._id} signed up`);
     res.status(200).json({ data: { user, accessToken } });
 };
 
 const signin = async (req, res) => {
     const { email, password } = req.body;
+
     const isUser = await User.userExist(email);
     if (!isUser) {
         return res.status(400).json({ error: 'User not exists.' });
@@ -55,29 +61,25 @@ const signin = async (req, res) => {
         console.log("E-mail doesn't exist.");
         return res.status(400).json({ error: "E-mail doesn't exist." });
     }
+
     const hash = user.password;
     const isValid = await bcrypt.compare(password, hash);
     if (!isValid) {
-        return res.status(403).json({
+        return res.status(401).json({
             errors: 'Password is not valid.',
         });
     }
+    const accessToken = signJwt(user.provider, user.name, user.email, user._id);
 
-    const accessToken = jwt.sign(
-        {
-            provider: user.provider,
-            name: user.name,
-            email: user.email,
-            id: user._id,
-        },
-        process.env.TOKEN_SECRET
-    );
     return res.status(200).json({ data: { user, accessToken } });
 };
 
 const checkEmail = async (req, res) => {
     const { email } = req.body;
     const isUser = await User.userExist(email);
+    if (!validator.isEmail(email)) {
+        return res.status(400).json({ error: 'Invalid email format.' });
+    }
     if (isUser !== null) {
         return res.status(400).json({ error: 'User already exists.' });
     }
@@ -85,8 +87,7 @@ const checkEmail = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-    const userId = req.user.id;
-    const { logoutTime } = req.body;
+    const { userId, logoutTime } = req.body;
     await User.logout(userId, logoutTime);
     console.log(`User ${userId} logged out.`);
     res.status(200).json({ message: `User ${userId} logged out.` });
@@ -117,6 +118,7 @@ const getUserData = async (req, res) => {
         image,
         notification,
     };
+
     return res.status(200).json({ data: userData });
 };
 
@@ -125,17 +127,34 @@ const editUserSetting = async (req, res) => {
     const { name, image, location_pre, type_pre } = req.body;
     let locationPre = {};
     for (let i = 0; i < location_pre.length; i++) {
-        locationPre[location_pre[i]] = Number((1.6 - i * 0.2).toFixed(1));
+        locationPre[location_pre[i]] = Number(
+            (MaxUserPreferenceScore - i * UserPreferenceScoreDiff).toFixed(1)
+        );
     }
     let typePre = {};
     for (let i = 0; i < type_pre.length; i++) {
-        typePre[type_pre[i]] = Number((1.6 - i * 0.2).toFixed(1));
+        typePre[type_pre[i]] = Number(
+            (MaxUserPreferenceScore - i * UserPreferenceScoreDiff).toFixed(1)
+        );
     }
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+    await User.updateUserSetting(userId, name, image, locationPre, typePre);
+    return res.status(200).json({ message: `User ${userId} setting updated.` });
+=======
+>>>>>>> Stashed changes
     const user = await User.updateUserSetting(userId, name, image, locationPre, typePre);
     const topPosts = await Cache.zrevrange('top-posts', 0, -1, 'WITHSCORES');
     await cacheUserNewsfeed(user, topPosts);
     const posts = await Cache.zrevrange(`user:${userId}`, 0, -1);
+<<<<<<< Updated upstream
     return res.status(200).json({ data: { relevantPosts: posts } });
+=======
+
+    return res.status(200).json({ data: { relevantPosts: posts } });
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 };
 
 const generateUserNewsfeed = async (req, res) => {
