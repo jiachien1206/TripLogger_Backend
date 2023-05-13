@@ -2,7 +2,6 @@ import User from '../models/user_model.js';
 import Post from '../models/post_model.js';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import Cache from '../../util/cache.js';
 import { signJwt } from '../../util/util.js';
 import { cacheUserNewsfeed } from '../../util/cacheUserNewsfeed.js';
@@ -96,10 +95,6 @@ const logout = async (req, res) => {
 const getUserData = async (req, res) => {
     const userId = req.user.id;
     const user = await User.queryUser(userId);
-    // FIXME: 怎麼給status啦
-    if (!user) {
-        return res.status(400).json({ message: "User doesn't exist" });
-    }
     const { name, email, location_pre, type_pre, image, notification } = user;
     let location = Object.entries(location_pre).sort((a, b) => b[1] - a[1]);
     location = location.map((l) => {
@@ -137,24 +132,12 @@ const editUserSetting = async (req, res) => {
             (MaxUserPreferenceScore - i * UserPreferenceScoreDiff).toFixed(1)
         );
     }
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-    await User.updateUserSetting(userId, name, image, locationPre, typePre);
-    return res.status(200).json({ message: `User ${userId} setting updated.` });
-=======
->>>>>>> Stashed changes
     const user = await User.updateUserSetting(userId, name, image, locationPre, typePre);
     const topPosts = await Cache.zrevrange('top-posts', 0, -1, 'WITHSCORES');
     await cacheUserNewsfeed(user, topPosts);
     const posts = await Cache.zrevrange(`user:${userId}`, 0, -1);
-<<<<<<< Updated upstream
-    return res.status(200).json({ data: { relevantPosts: posts } });
-=======
 
     return res.status(200).json({ data: { relevantPosts: posts } });
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 };
 
 const generateUserNewsfeed = async (req, res) => {
