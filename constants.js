@@ -32,3 +32,17 @@ export const BehaviorScore = {
 export const PageNumber = 10;
 
 export const Behaviors = ['read', 'like', 'save', 'comment'];
+
+export const HiddenPostFields = [
+    'score',
+    'new_read_num',
+    'comment_num',
+    'new_comment_num',
+    'new_like_num',
+    'new_save_num',
+    'read_num',
+    'save_num',
+    'comments',
+    'location.city',
+    'dates.last_interact',
+];

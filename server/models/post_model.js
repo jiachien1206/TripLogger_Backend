@@ -18,7 +18,20 @@ const queryPosts = async (limit) => {
 };
 
 const queryNewPosts = async (limit) => {
-    const newPosts = await Post.find()
+    const newPosts = await Post.find(
+        {},
+        {
+            _id: 1,
+            'location.continent': 1,
+            'location.country': 1,
+            'dates.post_date': 1,
+            title: 1,
+            authorId: 1,
+            main_image: 1,
+            type: 1,
+            content: 1,
+        }
+    )
         .sort({ 'dates.post_date': 'desc' })
         .populate({
             path: 'authorId',

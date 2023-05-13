@@ -2,7 +2,7 @@ import Post from '../models/post_model.js';
 import User from '../models/user_model.js';
 import Country from '../models/country_model.js';
 import Cache from '../../util/cache.js';
-import { Types, ContinentMap, PageNumber, Behaviors } from '../../constants.js';
+import { Types, ContinentMap, PageNumber, Behaviors, HiddenPostFields } from '../../constants.js';
 import { channel } from '../../util/queue.js';
 import { createPresignedUrl } from '../../util/s3.js'; // get
 import { isEvenTime } from '../../util/util.js';
@@ -34,13 +34,19 @@ const getTopPosts = async (req, res) => {
         paging * PageNumber - 1
     );
     const posts = pagePosts.map((post) => {
-        return JSON.parse(post);
+        const postObj = JSON.parse(post);
+        HiddenPostFields.forEach((field) => {
+            delete postObj[field];
+        });
+        return postObj;
     });
     const postsNum = await Cache.zcard('top-posts');
+
     const data = {
         posts,
         postsNum,
     };
+
     res.status(200).json({ data });
 };
 
