@@ -3,10 +3,6 @@ import Search from '../models/search_model.js';
 dotenv.config();
 
 const searchKeyword = async (req, res) => {
-    if (!req.query.keyword) {
-        return res.status(400).json({ error: 'Invalid Keyword' });
-    }
-
     const { keyword } = req.query;
     const results = await Search.searchPosts(keyword);
     const data = results.map((result) => {
