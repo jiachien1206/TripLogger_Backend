@@ -103,7 +103,11 @@ const queryUserLikedPosts = async (userId) => {
 };
 
 const updateUserSetting = async (userId, name, image, location, type) => {
-    await User.updateOne({ _id: userId }, { name, image, location_pre: location, type_pre: type });
+    return await User.findOneAndUpdate(
+        { _id: userId },
+        { name, image, location_pre: location, type_pre: type },
+        { new: true }
+    );
 };
 
 const addNotification = async (

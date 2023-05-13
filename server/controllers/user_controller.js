@@ -127,8 +127,11 @@ const editUserSetting = async (req, res) => {
     for (let i = 0; i < type_pre.length; i++) {
         typePre[type_pre[i]] = Number((1.6 - i * 0.2).toFixed(1));
     }
-    await User.updateUserSetting(userId, name, image, locationPre, typePre);
-    return res.status(200).json({ message: `User ${userId} setting updated.` });
+    const user = await User.updateUserSetting(userId, name, image, locationPre, typePre);
+    const topPosts = await Cache.zrevrange('top-posts', 0, -1, 'WITHSCORES');
+    await cacheUserNewsfeed(user, topPosts);
+    const posts = await Cache.zrevrange(`user:${userId}`, 0, -1);
+    return res.status(200).json({ data: { relevantPosts: posts } });
 };
 
 const generateUserNewsfeed = async (req, res) => {
