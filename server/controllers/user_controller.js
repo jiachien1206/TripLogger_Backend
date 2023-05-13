@@ -95,6 +95,10 @@ const logout = async (req, res) => {
 const getUserData = async (req, res) => {
     const userId = req.user.id;
     const user = await User.queryUser(userId);
+    // FIXME: 怎麼給status啦
+    if (!user) {
+        return res.status(400).json({ message: "User doesn't exist" });
+    }
     const { name, email, location_pre, type_pre, image, notification } = user;
     let location = Object.entries(location_pre).sort((a, b) => b[1] - a[1]);
     location = location.map((l) => {

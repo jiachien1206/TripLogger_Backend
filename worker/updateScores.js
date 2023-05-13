@@ -58,6 +58,7 @@ const updateUserScore = async (isEvenTime) => {
             await Cache.del(user);
         })
     );
+
     console.log(`Users read and like score updated.`);
 };
 
