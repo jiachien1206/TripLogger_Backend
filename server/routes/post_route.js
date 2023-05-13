@@ -26,7 +26,7 @@ router.route('/latest-posts').get(wrapAsync(getNewPosts));
 router.route('/top-posts').get(wrapAsync(getTopPosts));
 router.route('/relevant-posts').get(authentication, wrapAsync(getRelevantPosts));
 router.route('/posts/:id').get(getPost);
-router.route('/posts/:id/reads').post(wrapAsync(readPost));
+router.route('/posts/:id/read').post(wrapAsync(readPost));
 router.route('/posts/:id/like').post(authentication, wrapAsync(likePost));
 router.route('/posts/:id/save').post(authentication, wrapAsync(savePost));
 router.route('/posts/:id/num').get(wrapAsync(getPostNumbers));
