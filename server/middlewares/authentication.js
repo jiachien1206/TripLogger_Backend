@@ -15,7 +15,7 @@ const authentication = async (req, res, next) => {
         next();
     } catch (error) {
         console.error(error);
-        return res.status(403).json({ error: 'Forbidden' });
+        return res.status(401).json({ error: 'Unauthorized' });
     }
 };
 
