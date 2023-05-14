@@ -25,7 +25,7 @@ export const signJwt = (provider, name, email, id) => {
         },
         process.env.TOKEN_SECRET,
         {
-            expiresIn: Number(process.env.JWT_EXPIRE),
+            expiresIn: process.env.JWT_EXPIRE,
         }
     );
 };

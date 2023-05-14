@@ -50,6 +50,8 @@ const queryPostWithComments = async (postId) => {
                 'location.continent': 1,
                 'location.country': 1,
                 'dates.post_date': 1,
+                'dates.start_date': 1,
+                'dates.end_date': 1,
                 title: 1,
                 authorId: 1,
                 main_image: 1,
