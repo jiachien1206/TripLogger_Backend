@@ -3,6 +3,7 @@ dotenv.config();
 import Post from '../schemas/post_schema.js';
 import User from '../schemas/user_schema.js';
 import Country from '../schemas/country_schema.js';
+import Comment from '../schemas/comment_schema.js';
 import Es from '../../util/elasticsearch.js';
 const { ES_INDEX } = process.env;
 
@@ -209,8 +210,26 @@ const esEditPost = async (postId, post) => {
 };
 
 const deletePost = async (userId, postId) => {
-    await Post.deleteOne({ _id: postId });
+    const post = await Post.findOne({ _id: postId }, { 'location.country': 1 });
+    const { country } = post.location;
+    const countryId = await Country.findOne({ 'name.cn': country }, { _id: 1 });
+    const user = await User.findById(userId);
+    const newVisted = [];
+    let popped = 0;
+    user.visited.forEach((country) => {
+        if (country.toString() === countryId._id.toString() && popped === 0) {
+            popped += 1;
+        } else {
+            newVisted.push(country);
+        }
+    });
+    user.visited = newVisted;
+    user.save();
     await User.updateOne({ _id: userId }, { $pull: { posts: postId } });
+    await Comment.deleteMany({
+        postId: postId,
+    });
+    await Post.deleteOne({ _id: postId });
 };
 
 const esDeletePost = async (postId) => {

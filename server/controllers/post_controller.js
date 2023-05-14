@@ -82,7 +82,7 @@ const deleteRelevantPosts = async (req, res) => {
 const getPost = async (req, res) => {
     const postId = req.params.id;
     const post = await Post.queryPostWithComments(postId);
-    if (post.error) {
+    if (!post) {
         return res.status(400).json({ message: "Can't find this post." });
     }
     res.status(200).json({ data: post });

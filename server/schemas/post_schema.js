@@ -35,7 +35,7 @@ const postSchema = new Schema({
     save_num: { type: Number, default: 0 },
     new_comment_num: { type: Number, default: 0 },
     comment_num: { type: Number, default: 0 },
-    score: { type: Number, default: 0 },
+    score: { type: Number, default: 0.1 },
 });
 
 export default mongoose.model('Post', postSchema);
