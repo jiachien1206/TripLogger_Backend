@@ -34,6 +34,9 @@ app.use(function (err, req, res, next) {
     res.status(500).send('Internal Server Error');
 });
 
-server.listen(process.env.PORT, () => {
-    console.log(`This application is running on local host:${process.env.PORT}.`);
-});
+if (process.env.NODE_ENV === 'production') {
+    server.listen(process.env.PORT, () => {
+        console.log(`This application is running on local host:${process.env.PORT}.`);
+    });
+}
+export { app };

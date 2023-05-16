@@ -5,5 +5,4 @@ node_modules
 .DS_Store
 
 # Tools
-test
-initializeCache.js
+tools
