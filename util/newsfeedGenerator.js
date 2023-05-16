@@ -19,7 +19,7 @@ const cacheNewPosts = async () => {
 };
 
 const calculatePostsScore = async () => {
-    let maxScore = 0;
+    let maxScore = AlgoCoefficients.initialMaxScore;
     const maxCalculatePostsNumber = 10000;
 
     const postBoostScore = (originalNum, newNum, coefficient) => {
@@ -56,6 +56,7 @@ const calculatePostsScore = async () => {
                 ),
             5
         );
+        console.log(new Date() - post.dates.last_interact);
 
         // Transfer new number to old number
         post.read_num = new_read_num;
