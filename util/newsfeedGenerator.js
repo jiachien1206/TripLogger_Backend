@@ -23,7 +23,7 @@ const calculatePostsScore = async () => {
     const maxCalculatePostsNumber = 10000;
 
     const postBoostScore = (originalNum, newNum, coefficient) => {
-        (originalNum * AlgoCoefficients.lastWeight + newNum - originalNum) * coefficient;
+        return (originalNum * AlgoCoefficients.lastWeight + newNum - originalNum) * coefficient;
     };
 
     const posts = await Post.queryPosts(maxCalculatePostsNumber);
@@ -45,7 +45,6 @@ const calculatePostsScore = async () => {
             postBoostScore(like_num, new_like_num, AlgoCoefficients.likeBoost) +
             postBoostScore(save_num, new_save_num, AlgoCoefficients.saveBoost) +
             postBoostScore(comment_num, new_comment_num, AlgoCoefficients.commentBoost);
-
         // Time decay
         post.score = roundTo(
             post.score *

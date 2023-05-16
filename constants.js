@@ -20,7 +20,7 @@ export const AlgoCoefficients = {
     lastWeight: 0.8,
     timeDecayCoefficient: -0.01,
     newsfeedUpdateFrquency: 600000,
-    initialMaxScore: 0.01,
+    initialMaxScore: 0.0001,
 };
 
 export const MaxUserPreferenceScore = 1.6;
