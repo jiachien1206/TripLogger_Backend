@@ -43,9 +43,16 @@ const signup = async (req, res) => {
     }
 
     const user = await User.signup(name, email, hash, locationPre, typePre, 'native');
+    const userData = {
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        posts: user.posts,
+        _id: user._id,
+    };
     const accessToken = signJwt(user.provider, user.name, user.email, user._id);
     console.log(`New user ${user._id} signed up`);
-    res.status(200).json({ data: { user, accessToken } });
+    res.status(200).json({ data: { user: userData, accessToken } });
 };
 
 const signin = async (req, res) => {
@@ -65,12 +72,19 @@ const signin = async (req, res) => {
     const isValid = await bcrypt.compare(password, hash);
     if (!isValid) {
         return res.status(401).json({
-            errors: 'Password is not valid.',
+            error: 'Password is not valid.',
         });
     }
+    const userData = {
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        posts: user.posts,
+        _id: user._id,
+    };
     const accessToken = signJwt(user.provider, user.name, user.email, user._id);
 
-    return res.status(200).json({ data: { user, accessToken } });
+    return res.status(200).json({ data: { user: userData, accessToken } });
 };
 
 const checkEmail = async (req, res) => {
@@ -152,18 +166,12 @@ const getUserPosts = async (req, res) => {
     const userId = req.params.id;
     const { num } = req.query;
     const posts = await User.queryUserPosts(userId, num);
-    if (posts.error) {
-        return res.status(400).json({ message: "Can't find user's post." });
-    }
     res.status(200).json({ data: posts });
 };
 
 const getUserVisited = async (req, res) => {
     const userId = req.user.id;
     const visitedISO3 = await User.queryUserVisited(userId);
-    if (visitedISO3.error) {
-        return res.status(400).json({ message: "Can't find user's visited countries." });
-    }
     res.status(200).json({ data: visitedISO3 });
 };
 
