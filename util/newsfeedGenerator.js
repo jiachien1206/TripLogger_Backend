@@ -56,7 +56,6 @@ const calculatePostsScore = async () => {
                 ),
             5
         );
-        console.log(new Date() - post.dates.last_interact);
 
         // Transfer new number to old number
         post.read_num = new_read_num;
