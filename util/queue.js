@@ -15,6 +15,7 @@ const Queue = {
             return conn;
         } catch (error) {
             console.log(error);
+            return setTimeout(Queue.connect, 10000);
         }
     },
 };
