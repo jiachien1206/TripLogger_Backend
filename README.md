@@ -106,7 +106,7 @@ Utilized AWS S3 buckets to store static website and images. Integrate it with Cl
 ### Front-end Development
 
 Built the front-end using React with React Hooks and integrated Leaflet map for articles navigation and users’ travel footprint recording.
-![map](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/map2.gif)
+![map](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/map3.gif)
 
 ## Database Schema
 
