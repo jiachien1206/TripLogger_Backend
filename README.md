@@ -1,3 +1,10 @@
+<div>
+   <img src="https://img.shields.io/badge/license-MIT-green">
+   <img src="https://img.shields.io/badge/release-v1.0.0-blue">
+   <img src="https://img.shields.io/github/gist/last-commit/487069732cf000cf970ae26101932af7?color=orange">
+</div>
+<br>
+
 ## Introduction
 
 TripLogger is a travel forum website dedicated to providing a user-friendly and visually appealing platform for travel enthusiasts. It allows users to easily search for articles using keywords and explore articles on a map. In addition, TripLogger features a self-designed news feed algorithm that enhances the user experience by recommending personalized content based on their preferences and behavior. You can also effortlessly share your travel experiences on this forum and engage in discussions with fellow readers.
@@ -127,3 +134,7 @@ Built the front-end using React with React Hooks and integrated Leaflet map for 
 Linkedin: [https://www.linkedin.com/in/chiachien-li/](https://www.linkedin.com/in/chiachien-li/)
 
 Email: [chiachienli12@gmail.com](mailto:chiachienli12@gmail.com)
+
+## License
+
+TripLogger is licensed under the [MIT](./LICENSE).
