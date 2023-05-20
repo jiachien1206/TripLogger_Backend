@@ -77,9 +77,9 @@ k: time decay constant
 
 f: score update frequency
 
-![algorithm](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/algo4.gif)
+![algorithm](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/algo5.gif)
 
-_Try to change user’s location and type preference will trigger news feed generation sorting base on present posts scores and user's new preference._
+Try to change user’s location and type preference will trigger news feed generation sorting base on present posts scores and user's new preference.
 
 ### Caching and Counters by Redis
 
