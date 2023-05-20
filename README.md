@@ -48,9 +48,7 @@ incorporating **user preferences** to deliver customized news feeds.
 
 **Post score**
 
-```math
-Σ((x_p*w_p*+x_n*w_n)*b_x)*d*l*t
-```
+**Σ((x<sub>p</sub>\*w<sub>p</sub>+x<sub>n</sub>\*w<sub>n</sub>)\*b<sub>x</sub>)\*d\*l\*t**
 
 x<sub>p</sub>: Previous read, like ,save or comment numbers
 
@@ -70,9 +68,7 @@ t: User type preference score
 
 **Time decay**
 
-```math
-e^{k*(▵t/f)}
-```
+e<sup>k\*(▵t/f)</sup>
 
 k: time decay constant
 
