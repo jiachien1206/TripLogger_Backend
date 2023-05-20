@@ -9,6 +9,8 @@
 
 TripLogger is a travel forum website dedicated to providing a user-friendly and visually appealing platform for travel enthusiasts. It allows users to easily search for articles using keywords and explore articles on a map. In addition, TripLogger features a self-designed news feed algorithm that enhances the user experience by recommending personalized content based on their preferences and behavior. You can also effortlessly share your travel experiences on this forum and engage in discussions with fellow readers.
 
+**This is back-end repository. Front-end repository is [here](https://github.com/jiachien1206/TripLogger_Frontend).**
+
 ## Table of Contents
 
 -   [Tech Stacks](#tech-stacks)
