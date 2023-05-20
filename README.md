@@ -39,6 +39,7 @@ User2
 ### User Interaction Tracking
 
 User’s views, likes, saves, and comments will be recorded in database and converting these into post scores and user preference score by scheduled algorithm worker.
+![interaction](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/interaction.gif)
 
 ### News Feed Algorithm
 
@@ -68,7 +69,7 @@ t: User type preference score
 
 **Time decay**
 
-e<sup>k\*(▵t/f)</sup>
+**e<sup>k\*(▵t/f)</sup>**
 
 k: time decay constant
 
@@ -76,7 +77,9 @@ k: time decay constant
 
 f: score update frequency
 
-Try to change user’s location and type preference will trigger news feed generation sorting base on present posts scores.
+![algorithm](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/ezgif.com-video-to-gif.gif)
+
+_Try to change user’s location and type preference will trigger news feed generation sorting base on present posts scores and user's new preference._
 
 ### Caching and Counters by Redis
 
@@ -89,18 +92,21 @@ Decouple the news feed update process after creating, editing and deleting post 
 ### Full-text search by Elasticsearch
 
 Utilize Elasticsearch to search across all articles on the website and use Simplified and Traditional Chinese converter plugin to increase accuracy of Chinese analysis.
+![search](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/search.gif)
 
 ### Real-time Notifications by Socket.IO
 
 Socket.IO is used to send new comment notifications to author and trigger browsers to fetch updated news feeds every time new news feed generated.
+![notification](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/notification.gif)
 
 ### AWS S3 and CloudFront
 
-Utilized AWS S3 buckets to store static website and images. Integrate it with CloudFront CDN to enhance loading speed.
+Utilized AWS S3 buckets to store static website and images. Integrate it with CloudFront CDN to enhance loading speed. As a result, the home page loading speed was reduced from 16 seconds to 4.5 seconds.
 
 ### Front-end Development
 
 Built the front-end using React with React Hooks and integrated Leaflet map for articles navigation and users’ travel footprint recording.
+![map](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/map.gif)
 
 ## Database Schema
 
