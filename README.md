@@ -110,15 +110,15 @@ Built the front-end using React with React Hooks and integrated Leaflet map for 
 
 ### MongoDB
 
-![MongoDB](./public/images/readme/mongodb.png)
+![MongoDB](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/mongodb.png)
 
 ### Elasticsearch
 
-![Elasticsearch](./public/images/readme/es.png)
+![Elasticsearch](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/es.png)
 
 ## **Architecture**
 
-![Architecture](./public/images/readme/architecture.png)
+![Architecture](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/architecture.png)
 
 ## Contact
 
