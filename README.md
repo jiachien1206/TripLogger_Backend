@@ -71,7 +71,7 @@ t: User type preference score
 **Time decay**
 
 ```math
-e^(k*(▵t/f))
+e^{k*(▵t/f)}
 ```
 
 k: time decay constant
