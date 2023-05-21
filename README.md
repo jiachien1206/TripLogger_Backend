@@ -1,7 +1,7 @@
 <div>
    <img src="https://img.shields.io/badge/license-MIT-green">
    <img src="https://img.shields.io/badge/release-v1.0.0-blue">
-   <img src="https://img.shields.io/github/gist/last-commit/487069732cf000cf970ae26101932af7?color=orange">
+   <img src="https://img.shields.io/github/last-commit/jiachien1206/TripLogger_Backend?color=orange&logoColor=orange">
 </div>
 <br>
 
@@ -62,7 +62,7 @@ incorporating **user preferences** to deliver customized news feeds.
 
 x<sub>p</sub>: Previous read, like ,save or comment numbers
 
-x<sub>b</sub>: New read, like ,save or comment numbers
+x<sub>n</sub>: New read, like ,save or comment numbers
 
 w<sub>p</sub>: Previous interactions weight
 
