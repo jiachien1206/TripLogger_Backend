@@ -10,11 +10,11 @@ dotenv.config({ path: '../.env' });
 const cacheNewPosts = async () => {
     const newPostsNumber = 500;
     const posts = await Post.queryNewPosts(newPostsNumber);
-    const originalPostsLength = await Cache.llen('new-posts');
-    for (let i = 0; i < posts.length; i++) {
-        await Cache.rpush('new-posts', JSON.stringify(posts[i]));
-    }
-    await Cache.ltrim('new-posts', originalPostsLength, -1);
+    const postString = posts.map((post) => {
+        JSON.stringify(post);
+    });
+    await Cache.rpush('new-posts', postString);
+    await Cache.ltrim('new-posts', newPostsNumber, -1);
     console.log(`New posts cached at ${new Date()}.`);
 };
 
