@@ -39,6 +39,7 @@ const queryNewPosts = async (limit) => {
             select: ['name', 'image'],
         })
         .limit(limit);
+    console.log(newPosts.length);
     return newPosts;
 };
 
@@ -153,7 +154,6 @@ const createPost = async (userId, content) => {
 };
 
 const esCreatePost = async (postId, post) => {
-    // FIXME: try catch
     const date = new Date();
     const esPost = await Es.index({
         index: process.env.ES_INDEX,

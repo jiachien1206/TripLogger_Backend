@@ -209,10 +209,6 @@ const writePost = async (req, res) => {
     await Cache.lpush('new-posts', JSON.stringify(post));
     await Cache.rpop('new-posts');
     const esPostId = await Post.esCreatePost(postId, content);
-    // if (!esPostId) {
-    //     return res.status(500).json({ error: `Elasticsearch created ${postId} failed.` });
-
-    // }
     console.log(`New post ${esPostId} saved to elasticsearch.`);
     channel.sendToQueue('post-queue', Buffer.from(JSON.stringify(postId)));
     console.log('Update newsfeed job send to queue.');
