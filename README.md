@@ -58,9 +58,9 @@ incorporating **user preferences** to deliver customized news feeds.
 
 There are two types of news feed need to sort by the algorithm. One is **top posts**, the other is **customized news feed**.
 
-**Top Posts**
+**Top News Feed**
 
-**Post score = Σ((x<sub>p</sub>\*w<sub>p</sub>+x<sub>n</sub>\*w<sub>n</sub>)\*b<sub>x</sub>)\*d**
+**Post_score = Σ((x<sub>p</sub>\*w<sub>p</sub>+x<sub>n</sub>\*w<sub>n</sub>)\*b<sub>x</sub>)\*d**
 
 x<sub>p</sub>: Previous read, like ,save or comment numbers
 
@@ -91,7 +91,7 @@ This indicates that interactions will initially boost the score of posts, but ov
 
 Customized news feed is based on posts scored calculated above and combine with user's **location and type preference** to sort customized news feed.
 
-**Σ((x<sub>p</sub>\*w<sub>p</sub>+x<sub>n</sub>\*w<sub>n</sub>)\*b<sub>x</sub>)\*d\*l\*t**
+**Customized_post_score = Post_score\*l\*t**
 
 l: User location preference score
 
