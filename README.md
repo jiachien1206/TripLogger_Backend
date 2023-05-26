@@ -99,7 +99,7 @@ t: User type preference score
 
 Location and type preferences are influenced by both user preference settings and their actual behaviors. For example, when a user likes a post about an Asian attraction, their preferences for Asia and attractions will be reinforced and increased.
 
-![algorithm](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/algo6.gif)
+![algorithm](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/algo7.gif)
 
 Change user’s location and type preference will trigger news feed generation sorting base on present posts scores and user's new preference.
 
