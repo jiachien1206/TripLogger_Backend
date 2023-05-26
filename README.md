@@ -58,7 +58,7 @@ incorporating **user preferences** to deliver customized news feeds.
 
 There are two types of news feed need to sort by the algorithm. One is **top posts**, the other is **customized news feed**.
 
-**Top News Feed**
+#### Top News Feed
 
 **Post_score = Σ((x<sub>p</sub>\*w<sub>p</sub>+x<sub>n</sub>\*w<sub>n</sub>)\*b<sub>x</sub>)\*d**
 
@@ -84,10 +84,10 @@ f: score update frequency
 
 d: Time decay
 
-![algorithm](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/algo_demo.gif)
+![algorithm](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/algo_demo2.gif)
 This indicates that interactions will initially boost the score of posts, but over time, the score of posts will gradually decrease due to time decay. As a result, new posts will have a greater chance of achieving higher rankings.
 
-**Customized News Feed**
+#### Customized News Feed
 
 Customized news feed is based on posts scored calculated above and combine with user's **location and type preference** to sort customized news feed.
 
