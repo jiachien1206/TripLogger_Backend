@@ -72,6 +72,8 @@ w<sub>n</sub>: New interactions weight
 
 b<sub>x</sub>: Interaction boosts of new read, like ,save or comment
 
+d: Time decay
+
 **Time decay**
 
 **e<sup>k\*(▵t/f)</sup>**
@@ -81,8 +83,6 @@ k: time decay constant
 ▵t: time difference between post's last interaction time and current time
 
 f: score update frequency
-
-d: Time decay
 
 ![algorithm](https://triplogger.s3.ap-northeast-1.amazonaws.com/readme/algo_demo2.gif)
 This indicates that interactions will initially boost the score of posts, but over time, the score of posts will gradually decrease due to time decay. As a result, new posts will have a greater chance of achieving higher rankings.
