@@ -60,14 +60,9 @@ const signin = async (req, res) => {
 
     const isUser = await User.userExist(email);
     if (!isUser) {
-        return res.status(400).json({ error: 'User not exists.' });
+        return res.status(401).json({ error: 'User not exists.' });
     }
     const user = await User.getUser(email);
-    if (!user) {
-        console.log("E-mail doesn't exist.");
-        return res.status(400).json({ error: "E-mail doesn't exist." });
-    }
-
     const hash = user.password;
     const isValid = await bcrypt.compare(password, hash);
     if (!isValid) {
