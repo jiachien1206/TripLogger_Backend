@@ -62,6 +62,8 @@ const updateUserScore = async (isEvenTime) => {
     console.log(`Users read and like score updated.`);
 };
 
+console.log(`Worker started at ${new Date()}`);
+
 await Database.connect();
 
 const socket = io.connect(process.env.SERVER, {
@@ -80,9 +82,10 @@ socket.on('connect', async function () {
         await UpdateFeeds();
 
         socket.emit('Refresh user newsfeed', 'Online user refresh newsfeed.');
+        console.log(`Worker finished at ${new Date()}`);
         process.exit(0);
     } catch (e) {
-        console.error(e);
+        console.error(new Date(), e);
         process.exit(1);
     }
 });
