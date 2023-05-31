@@ -202,7 +202,7 @@ const esEditPost = async (postId, post) => {
                 },
             },
             script: {
-                inline: `ctx._source.title = '${post.title}'; ctx._source.content= '${post.content}';ctx._source.main_image= '${post.main_image}';`,
+                inline: `ctx._source.title = "${post.title}"; ctx._source.content= "${post.content}";ctx._source.main_image= "${post.main_image}";`,
                 lang: 'painless',
             },
         },
