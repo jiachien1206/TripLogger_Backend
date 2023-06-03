@@ -39,7 +39,6 @@ const queryNewPosts = async (limit) => {
             select: ['name', 'image'],
         })
         .limit(limit);
-    console.log(newPosts.length);
     return newPosts;
 };
 
