@@ -38,4 +38,8 @@ const postSchema = new Schema({
     score: { type: Number, default: 0.1 },
 });
 
+postSchema.index({ 'dates.post_date': -1 });
+postSchema.index({ score: -1 });
+postSchema.index({ 'location.country': 1 });
+
 export default mongoose.model('Post', postSchema);
